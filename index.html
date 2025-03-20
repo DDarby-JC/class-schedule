@@ -20,7 +20,6 @@
     /* Header styling */
     #header {
       width: 100%;
-      max-width: 100%;
       margin: 0 auto 10px;
     }
     #header-top {
@@ -86,11 +85,11 @@
     .tab-content.active {
       display: block;
     }
-    /* Grid container for schedules within each tab */
-    .grid-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
+    /* Stacked layout for each tab: one column */
+    .stacked-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
       width: 100%;
       margin: 0 auto 10px;
     }
@@ -139,11 +138,11 @@
     /* Fixed column widths */
     table th:first-child,
     table td:first-child {
-      width: 60%;
+      width: 70%;
     }
     table th:last-child,
     table td:last-child {
-      width: 40%;
+      width: 30%;
     }
     /* Message/Notice area */
     #message-area {
@@ -196,9 +195,9 @@
     <button class="tab-button" data-tab="eve">Eve</button>
   </div>
   
-  <!-- Tab Content: Day Schedules -->
+  <!-- Tab Content: Day Schedules (stacked layout) -->
   <div id="tab-day" class="tab-content active">
-    <div class="grid-container">
+    <div class="stacked-container">
       <table id="rn-day">
         <caption>⚕️ RN Day</caption>
         <thead>
@@ -222,9 +221,9 @@
     </div>
   </div>
   
-  <!-- Tab Content: Eve Schedules -->
+  <!-- Tab Content: Eve Schedules (stacked layout) -->
   <div id="tab-eve" class="tab-content">
-    <div class="grid-container">
+    <div class="stacked-container">
       <table id="rn-eve">
         <caption>⚕️ RN Eve</caption>
         <thead>
@@ -256,7 +255,7 @@
   <!-- PapaParse library for CSV parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
-    // Function to update the live date/time every second
+    // Update live date/time every second
     function updateDateTime() {
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -267,7 +266,7 @@
     updateDateTime();
     setInterval(updateDateTime, 1000);
     
-    // Function to update weather (replace YOUR_API_KEY with your actual key)
+    // Update weather info (replace YOUR_API_KEY with your OpenWeatherMap API key)
     function updateWeather() {
       const apiKey = 'cd92bb216f62d4296dac9d6b6f6a5c27';
       const zip = '33619';
@@ -291,7 +290,7 @@
     updateWeather();
     setInterval(updateWeather, 600000); // update every 10 minutes
     
-    // Function to update a table's data without full reload
+    // Update table data without a full page reload
     function updateTable(tableElement, data) {
       const tbody = tableElement.querySelector('tbody');
       tbody.innerHTML = '';
@@ -387,7 +386,7 @@
         // Remove active class from all buttons and contents
         tabButtons.forEach(btn => btn.classList.remove('active'));
         tabContents.forEach(content => content.classList.remove('active'));
-        // Add active class to the clicked button and corresponding content
+        // Add active class to clicked button and corresponding content
         button.classList.add('active');
         document.getElementById('tab-' + targetTab).classList.add('active');
       });
