@@ -4,171 +4,192 @@
   <meta charset="UTF-8">
   <!-- No full page refresh -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quad Schedule Display with Messages, Time & Weather</title>
+  <title>Class Schedule Display</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom, #f5f5f5, #eaeaea);
       margin: 0;
-      padding: 10px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      position: relative;
+      color: #333;
     }
-    /* Header: date/time and weather */
+    /* Header styling: live date/time and weather */
     #header {
       width: 100%;
       max-width: 1200px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
     }
     #datetime {
-      font-size: 1.5em;
-      color: #333;
+      font-size: 1.8em;
+      font-weight: 500;
     }
     #weather {
-      font-size: 1.2em;
-      color: #333;
+      font-size: 1.3em;
     }
-    /* Small refresh icon button, in the top right corner */
+    /* Small refresh icon button in the top right corner */
     #refresh-button {
       background: none;
       border: none;
-      font-size: 1.5em;
+      font-size: 1.8em;
       cursor: pointer;
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 20px;
+      right: 20px;
+      color: #333;
     }
-    /* Message area styling */
-    #message-area {
-      width: 100%;
-      max-width: 1200px;
-      background: #fff;
-      border: 1px solid #ddd;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      padding: 10px;
-      margin-bottom: 20px;
-    }
-    .message {
-      margin-bottom: 10px;
-    }
-    .message-title {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-    /* Grid layout for the four tables */
+    /* Grid container for class schedules */
     .grid-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
       grid-gap: 20px;
       width: 100%;
       max-width: 1200px;
+      margin-bottom: 20px;
     }
     table {
       border-collapse: collapse;
       background: #fff;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
     }
     caption {
-      font-size: 1.5em;
-      padding: 10px;
+      font-size: 1.4em;
+      padding: 12px;
+      font-weight: bold;
     }
-    /* RN (maroon) and PN (gold) styling */
+    /* RN styling: maroon background with white text */
     #rn-day caption,
     #rn-eve caption {
-      background: #800000; /* Maroon */
-      color: white;
+      background: #800000;
+      color: #fff;
     }
+    /* PN styling: gold background with dark text */
     #pn-day caption,
     #pn-eve caption {
-      background: #FFD700; /* Gold */
-      color: black;
+      background: #FFD700;
+      color: #333;
     }
     th, td {
-      border: 1px solid #ddd;
       padding: 12px;
       text-align: left;
+      border-bottom: 1px solid #ddd;
     }
     th {
-      background: #f7f7f7;
+      background: #f9f9f9;
+      font-weight: 600;
     }
-    /* Responsive layout for portrait screens */
+    tr:hover {
+      background: #f1f1f1;
+    }
+    /* Message area styling: placed below the grid */
+    #message-area {
+      width: 100%;
+      max-width: 1200px;
+      background: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    .message {
+      margin-bottom: 15px;
+      padding: 10px;
+      border-left: 4px solid #800000;
+    }
+    .message-title {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .message-text {
+      font-size: 1em;
+      line-height: 1.4;
+    }
+    /* Responsive adjustments */
     @media only screen and (max-width: 800px) {
       .grid-container {
         grid-template-columns: 1fr;
+      }
+      #header {
+        flex-direction: column;
+        text-align: center;
+      }
+      #refresh-button {
+        top: 10px;
+        right: 10px;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Refresh button as a small symbol -->
+  <!-- Refresh button as a small icon -->
   <button id="refresh-button" title="Refresh">&#x21bb;</button>
   
-  <!-- Header with live date/time and weather -->
+  <!-- Header: live date/time and weather -->
   <div id="header">
     <div id="datetime"></div>
     <div id="weather"></div>
   </div>
   
-  <!-- Message/Notice Area -->
-  <div id="message-area">
-    <!-- Messages will be injected here -->
+  <!-- Grid container for class schedules -->
+  <div class="grid-container">
+    <table id="rn-day">
+      <caption>⚕️ RN Day</caption>
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Room #</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    
+    <table id="rn-eve">
+      <caption>⚕️ RN Eve</caption>
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Room #</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    
+    <table id="pn-day">
+      <caption>💊 PN Day</caption>
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Room #</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    
+    <table id="pn-eve">
+      <caption>💊 PN Eve</caption>
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Room #</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
   
-  <!-- Grid container for the four tables -->
-  <div class="grid-container">
-    <!-- RN Day Table -->
-    <table id="rn-day">
-      <caption>☀️ RN Day</caption>
-      <thead>
-        <tr>
-          <th>Class</th>
-          <th>Room #</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    
-    <!-- RN Eve Table -->
-    <table id="rn-eve">
-      <caption>🌙 RN Eve</caption>
-      <thead>
-        <tr>
-          <th>Class</th>
-          <th>Room #</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    
-    <!-- PN Day Table -->
-    <table id="pn-day">
-      <caption>☀️� PN Day</caption>
-      <thead>
-        <tr>
-          <th>Class</th>
-          <th>Room #</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    
-    <!-- PN Eve Table -->
-    <table id="pn-eve">
-      <caption>🌙 PN Eve</caption>
-      <thead>
-        <tr>
-          <th>Class</th>
-          <th>Room #</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <!-- Message/Notice Area placed below the class schedules -->
+  <div id="message-area">
+    <!-- Messages will be injected here -->
   </div>
   
   <!-- PapaParse library for CSV parsing -->
@@ -187,16 +208,16 @@
     
     // Update weather using OpenWeatherMap (replace YOUR_API_KEY with your key)
     function updateWeather() {
-      const apiKey = 'cd92bb216f62d4296dac9d6b6f6a5c27';
+      const apiKey = 'cd92bb216f62d4296dac9d6b6f6a5c27'; // Replace with your OpenWeatherMap API key
       const zip = '33619';
       const url = `https://api.openweathermap.org/data/2.5/weather?zip=${zip},us&units=imperial&appid=${apiKey}`;
       fetch(url)
         .then(response => response.json())
         .then(data => {
-          if(data.cod === 200) {
+          if (data.cod === 200) {
             const temp = Math.round(data.main.temp);
-            const weatherDescription = data.weather[0].description;
-            document.getElementById('weather').textContent = `Weather: ${temp}°F, ${weatherDescription}`;
+            const description = data.weather[0].description;
+            document.getElementById('weather').textContent = `Weather: ${temp}°F, ${description}`;
           } else {
             document.getElementById('weather').textContent = 'Weather data unavailable';
           }
@@ -207,9 +228,9 @@
         });
     }
     updateWeather();
-    setInterval(updateWeather, 600000); // update every 10 minutes
-
-    // Function to update a table's data (for schedule tables)
+    setInterval(updateWeather, 600000); // Update every 10 minutes
+    
+    // Update a table's data without full page reload
     function updateTable(tableElement, data) {
       const tbody = tableElement.querySelector('tbody');
       tbody.innerHTML = '';
@@ -225,17 +246,17 @@
       });
     }
     
-    // CSV URLs for the schedules and messages (update these as needed)
+    // CSV URLs for the schedules and messages (update with your own URLs)
     const urls = {
       "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
       "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
       "pn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1551044945&single=true&output=csv",
       "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv",
-      // Replace with your published messages CSV URL
-      "messages": "https://docs.google.com/spreadsheets/d/e/YOUR_MESSAGES_SHEET_ID/pub?gid=0&single=true&output=csv"
+      // Replace with your published messages CSV URL (using a tab with columns Title and Message)
+      "messages": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pubhtml?gid=1334066845&single=true"
     };
     
-    // Function to fetch and update schedule table data using PapaParse
+    // Fetch and update schedule table data using PapaParse
     function fetchAndUpdate(url, tableId) {
       Papa.parse(url, {
         download: true,
@@ -287,12 +308,11 @@
       loadMessages();
     }
     
-    // Initial load
+    // Initial load and auto-refresh every minute
     refreshAll();
-    // Auto-refresh schedules and messages every minute
     setInterval(refreshAll, 60000);
     
-    // Manual refresh via the refresh button (icon)
+    // Manual refresh via the refresh button
     document.getElementById('refresh-button').addEventListener('click', refreshAll);
   </script>
 </body>
