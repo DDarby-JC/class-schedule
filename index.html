@@ -6,13 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Class Schedule Display</title>
   <style>
-    /* Global box-sizing and reset */
+    /* Global box-sizing */
     *, *:before, *:after {
       box-sizing: border-box;
     }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f5f5; /* Solid, light background */
+      background: #f5f5f5;
       margin: 0;
       padding: 20px;
       color: #333;
@@ -23,7 +23,7 @@
       max-width: 1200px;
       margin: 0 auto 20px;
     }
-    /* Top header row: Date/Time and refresh */
+    /* Top header row: Date/Time with refresh button */
     #header-top {
       position: relative;
       background: #fff;
@@ -32,7 +32,6 @@
       border-radius: 8px 8px 0 0;
       text-align: center;
     }
-    /* Subtle refresh button in the top left */
     #refresh-button {
       position: absolute;
       left: 10px;
@@ -63,13 +62,13 @@
       font-size: 1.3em;
       margin: 0;
     }
-    /* Grid container for schedules */
+    /* Grid container for schedules: fixed width with horizontal scrolling */
     .grid-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      grid-gap: 20px;
-      width: 100%;
-      max-width: 1200px;
+      gap: 10px;
+      width: 1200px;  /* Fixed width forces two columns */
+      overflow-x: auto;
       margin: 0 auto 20px;
     }
     table {
@@ -79,26 +78,25 @@
       width: 100%;
       border-radius: 8px;
       overflow: hidden;
-      table-layout: fixed; /* Enforce fixed layout */
+      table-layout: fixed;
     }
     caption {
       font-size: 1.4em;
       padding: 12px;
       font-weight: bold;
     }
-    /* RN styling: maroon with white text */
+    /* RN styling */
     #rn-day caption,
     #rn-eve caption {
       background: #800000;
       color: #fff;
     }
-    /* PN styling: gold with dark text */
+    /* PN styling */
     #pn-day caption,
     #pn-eve caption {
       background: #FFD700;
       color: #333;
     }
-    /* Table header and cell styling */
     th, td {
       padding: 12px;
       text-align: left;
@@ -114,7 +112,7 @@
     tr:hover {
       background: #f1f1f1;
     }
-    /* Specify fixed column widths: first column gets 70%, second gets 30% */
+    /* Fixed column widths */
     table th:first-child,
     table td:first-child {
       width: 70%;
@@ -151,7 +149,8 @@
     /* Responsive adjustments */
     @media only screen and (max-width: 800px) {
       .grid-container {
-        grid-template-columns: 1fr;
+        width: 100%;
+        grid-template-columns: 1fr; /* For very small screens, stack items */
       }
       #header-top, #header-bottom {
         padding: 10px;
@@ -267,7 +266,7 @@
     updateWeather();
     setInterval(updateWeather, 600000); // update every 10 minutes
     
-    // Update a table's data without full page reload
+    // Update table data (for schedules)
     function updateTable(tableElement, data) {
       const tbody = tableElement.querySelector('tbody');
       tbody.innerHTML = '';  // Clear previous content
@@ -354,7 +353,7 @@
     refreshAll();
     setInterval(refreshAll, 60000);
     
-    // Manual refresh when the refresh button is clicked
+    // Manual refresh on button click
     document.getElementById('refresh-button').addEventListener('click', refreshAll);
   </script>
 </body>
