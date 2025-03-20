@@ -8,42 +8,42 @@
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to bottom, #f5f5f5, #eaeaea);
+      background: #f5f5f5; /* Solid background */
       margin: 0;
       padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       color: #333;
     }
-    /* Header styling: live date/time and weather */
+    /* Header: contains refresh icon, big centered date/time, and weather info */
     #header {
-      width: 100%;
-      max-width: 1200px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background: #fff;
+      padding: 10px 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 1200px;
       margin-bottom: 20px;
+      border-radius: 8px;
     }
-    #datetime {
-      font-size: 1.8em;
-      font-weight: 500;
-    }
-    #weather {
-      font-size: 1.3em;
-    }
-    /* Small refresh icon button in the top right corner */
     #refresh-button {
       background: none;
       border: none;
       font-size: 1.8em;
       cursor: pointer;
-      position: absolute;
-      top: 20px;
-      right: 20px;
       color: #333;
     }
-    /* Grid container for class schedules */
+    #datetime {
+      flex-grow: 1;
+      text-align: center;
+      font-size: 2.5em;
+      font-weight: bold;
+    }
+    #weather {
+      text-align: right;
+      font-size: 1.3em;
+    }
+    /* Grid container for schedules */
     .grid-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -65,13 +65,12 @@
       padding: 12px;
       font-weight: bold;
     }
-    /* RN styling: maroon background with white text */
+    /* RN uses maroon; PN uses gold */
     #rn-day caption,
     #rn-eve caption {
       background: #800000;
       color: #fff;
     }
-    /* PN styling: gold background with dark text */
     #pn-day caption,
     #pn-eve caption {
       background: #FFD700;
@@ -89,7 +88,7 @@
     tr:hover {
       background: #f1f1f1;
     }
-    /* Message area styling: placed below the grid */
+    /* Message/Notice area below the grid */
     #message-area {
       width: 100%;
       max-width: 1200px;
@@ -116,31 +115,33 @@
     }
     /* Responsive adjustments */
     @media only screen and (max-width: 800px) {
-      .grid-container {
-        grid-template-columns: 1fr;
-      }
       #header {
         flex-direction: column;
         text-align: center;
       }
-      #refresh-button {
-        top: 10px;
-        right: 10px;
+      #datetime {
+        margin: 10px 0;
+      }
+      #weather {
+        margin-top: 10px;
+      }
+      .grid-container {
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Refresh button as a small icon -->
-  <button id="refresh-button" title="Refresh">&#x21bb;</button>
-  
-  <!-- Header: live date/time and weather -->
+  <!-- Header with refresh icon, date/time, and weather -->
   <div id="header">
+    <div id="refresh-container">
+      <button id="refresh-button" title="Refresh">&#x21bb;</button>
+    </div>
     <div id="datetime"></div>
     <div id="weather"></div>
   </div>
   
-  <!-- Grid container for class schedules -->
+  <!-- Grid for Class Schedules -->
   <div class="grid-container">
     <table id="rn-day">
       <caption>⚕️ RN Day</caption>
@@ -187,15 +188,16 @@
     </table>
   </div>
   
-  <!-- Message/Notice Area placed below the class schedules -->
+  <!-- Message/Notice area below schedules -->
   <div id="message-area">
-    <!-- Messages will be injected here -->
+    <!-- If no messages, a default text will be shown -->
+    <div id="default-message" style="color:#777;">No messages</div>
   </div>
   
-  <!-- PapaParse library for CSV parsing -->
+  <!-- PapaParse for CSV parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
-    // Update live date and time every second
+    // Update live date/time every second
     function updateDateTime() {
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -206,15 +208,15 @@
     updateDateTime();
     setInterval(updateDateTime, 1000);
     
-    // Update weather using OpenWeatherMap (replace YOUR_API_KEY with your key)
+    // Update weather info (replace YOUR_API_KEY with your OpenWeatherMap API key)
     function updateWeather() {
-      const apiKey = 'cd92bb216f62d4296dac9d6b6f6a5c27'; // Replace with your OpenWeatherMap API key
+      const apiKey = 'cd92bb216f62d4296dac9d6b6f6a5c27';
       const zip = '33619';
       const url = `https://api.openweathermap.org/data/2.5/weather?zip=${zip},us&units=imperial&appid=${apiKey}`;
       fetch(url)
         .then(response => response.json())
         .then(data => {
-          if (data.cod === 200) {
+          if(data.cod === 200) {
             const temp = Math.round(data.main.temp);
             const description = data.weather[0].description;
             document.getElementById('weather').textContent = `Weather: ${temp}°F, ${description}`;
@@ -228,12 +230,12 @@
         });
     }
     updateWeather();
-    setInterval(updateWeather, 600000); // Update every 10 minutes
+    setInterval(updateWeather, 600000); // update every 10 minutes
     
-    // Update a table's data without full page reload
+    // Function to update table data (for class schedules)
     function updateTable(tableElement, data) {
       const tbody = tableElement.querySelector('tbody');
-      tbody.innerHTML = '';
+      tbody.innerHTML = '';  // clear previous content
       data.forEach(row => {
         const tr = document.createElement('tr');
         const tdClass = document.createElement('td');
@@ -246,13 +248,12 @@
       });
     }
     
-    // CSV URLs for the schedules and messages (update with your own URLs)
+    // CSV URLs for schedules and messages – update with your own published links
     const urls = {
       "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
       "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
       "pn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1551044945&single=true&output=csv",
       "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv",
-      // Replace with your published messages CSV URL (using a tab with columns Title and Message)
       "messages": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pubhtml?gid=1334066845&single=true"
     };
     
@@ -270,7 +271,7 @@
       });
     }
     
-    // Load messages into the message area from CSV
+    // Load messages from the messages CSV
     function loadMessages() {
       Papa.parse(urls["messages"], {
         download: true,
@@ -279,19 +280,25 @@
           const messages = results.data;
           const messageArea = document.getElementById('message-area');
           messageArea.innerHTML = '';
-          messages.forEach(msg => {
-            const div = document.createElement('div');
-            div.className = 'message';
-            const title = document.createElement('div');
-            title.className = 'message-title';
-            title.textContent = msg.Title || msg.title || '';
-            const text = document.createElement('div');
-            text.className = 'message-text';
-            text.textContent = msg.Message || msg.message || '';
-            div.appendChild(title);
-            div.appendChild(text);
-            messageArea.appendChild(div);
-          });
+          if (messages.length === 0 || (messages.length === 1 && !messages[0].Title && !messages[0].Message)) {
+            messageArea.innerHTML = '<div style="color:#777;">No messages</div>';
+          } else {
+            messages.forEach(msg => {
+              if (msg.Title || msg.Message) {
+                const div = document.createElement('div');
+                div.className = 'message';
+                const title = document.createElement('div');
+                title.className = 'message-title';
+                title.textContent = msg.Title || msg.title || '';
+                const text = document.createElement('div');
+                text.className = 'message-text';
+                text.textContent = msg.Message || msg.message || '';
+                div.appendChild(title);
+                div.appendChild(text);
+                messageArea.appendChild(div);
+              }
+            });
+          }
         },
         error: function(err) {
           console.error("Error fetching messages CSV:", err);
@@ -312,7 +319,7 @@
     refreshAll();
     setInterval(refreshAll, 60000);
     
-    // Manual refresh via the refresh button
+    // Manual refresh when the refresh button is clicked
     document.getElementById('refresh-button').addEventListener('click', refreshAll);
   </script>
 </body>
