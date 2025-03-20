@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Class Schedule Display</title>
   <style>
-    /* Ensure elements use border-box sizing */
+    /* Global box-sizing and reset */
     *, *:before, *:after {
       box-sizing: border-box;
     }
@@ -17,13 +17,13 @@
       padding: 20px;
       color: #333;
     }
-    /* Header container */
+    /* Header container with two rows */
     #header {
       width: 100%;
       max-width: 1200px;
       margin: 0 auto 20px;
     }
-    /* Top part of header: date/time with refresh button */
+    /* Top header row: Date/Time and refresh */
     #header-top {
       position: relative;
       background: #fff;
@@ -32,7 +32,7 @@
       border-radius: 8px 8px 0 0;
       text-align: center;
     }
-    /* Subtle refresh button positioned at the left of the header-top */
+    /* Subtle refresh button in the top left */
     #refresh-button {
       position: absolute;
       left: 10px;
@@ -50,20 +50,20 @@
       font-weight: bold;
       margin: 0;
     }
-    /* Weather row beneath the date/time */
+    /* Bottom header row: Weather */
     #header-bottom {
       background: #fff;
       padding: 10px 20px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       border-radius: 0 0 8px 8px;
       text-align: center;
-      margin-top: -4px; /* slight overlap to join with top */
+      margin-top: -4px;
     }
     #weather {
       font-size: 1.3em;
       margin: 0;
     }
-    /* Grid container for class schedules */
+    /* Grid container for schedules */
     .grid-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -79,6 +79,7 @@
       width: 100%;
       border-radius: 8px;
       overflow: hidden;
+      table-layout: fixed; /* Enforce fixed layout */
     }
     caption {
       font-size: 1.4em;
@@ -97,10 +98,14 @@
       background: #FFD700;
       color: #333;
     }
+    /* Table header and cell styling */
     th, td {
       padding: 12px;
       text-align: left;
       border-bottom: 1px solid #ddd;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
     th {
       background: #f9f9f9;
@@ -109,7 +114,16 @@
     tr:hover {
       background: #f1f1f1;
     }
-    /* Message area below the grid */
+    /* Specify fixed column widths: first column gets 70%, second gets 30% */
+    table th:first-child,
+    table td:first-child {
+      width: 70%;
+    }
+    table th:last-child,
+    table td:last-child {
+      width: 30%;
+    }
+    /* Message/Notice area below schedules */
     #message-area {
       width: 100%;
       max-width: 1200px;
