@@ -6,51 +6,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Class Schedule Display</title>
   <style>
+    /* Ensure elements use border-box sizing */
+    *, *:before, *:after {
+      box-sizing: border-box;
+    }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f5f5; /* Solid background */
+      background: #f5f5f5; /* Solid, light background */
       margin: 0;
       padding: 20px;
       color: #333;
     }
-    /* Header: contains refresh icon, big centered date/time, and weather info */
+    /* Header container */
     #header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto 20px;
+    }
+    /* Top part of header: date/time with refresh button */
+    #header-top {
+      position: relative;
       background: #fff;
       padding: 10px 20px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 1200px;
-      margin-bottom: 20px;
-      border-radius: 8px;
+      border-radius: 8px 8px 0 0;
+      text-align: center;
     }
+    /* Subtle refresh button positioned at the left of the header-top */
     #refresh-button {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.2em;
+      opacity: 0.7;
       background: none;
       border: none;
-      font-size: 1.8em;
       cursor: pointer;
       color: #333;
     }
     #datetime {
-      flex-grow: 1;
-      text-align: center;
       font-size: 2.5em;
       font-weight: bold;
+      margin: 0;
+    }
+    /* Weather row beneath the date/time */
+    #header-bottom {
+      background: #fff;
+      padding: 10px 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border-radius: 0 0 8px 8px;
+      text-align: center;
+      margin-top: -4px; /* slight overlap to join with top */
     }
     #weather {
-      text-align: right;
       font-size: 1.3em;
+      margin: 0;
     }
-    /* Grid container for schedules */
+    /* Grid container for class schedules */
     .grid-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
       grid-gap: 20px;
       width: 100%;
       max-width: 1200px;
-      margin-bottom: 20px;
+      margin: 0 auto 20px;
     }
     table {
       border-collapse: collapse;
@@ -65,12 +85,13 @@
       padding: 12px;
       font-weight: bold;
     }
-    /* RN uses maroon; PN uses gold */
+    /* RN styling: maroon with white text */
     #rn-day caption,
     #rn-eve caption {
       background: #800000;
       color: #fff;
     }
+    /* PN styling: gold with dark text */
     #pn-day caption,
     #pn-eve caption {
       background: #FFD700;
@@ -88,7 +109,7 @@
     tr:hover {
       background: #f1f1f1;
     }
-    /* Message/Notice area below the grid */
+    /* Message area below the grid */
     #message-area {
       width: 100%;
       max-width: 1200px;
@@ -97,7 +118,7 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       padding: 15px;
       border-radius: 8px;
-      margin-top: 20px;
+      margin: 0 auto;
     }
     .message {
       margin-bottom: 15px;
@@ -115,30 +136,31 @@
     }
     /* Responsive adjustments */
     @media only screen and (max-width: 800px) {
-      #header {
-        flex-direction: column;
-        text-align: center;
-      }
-      #datetime {
-        margin: 10px 0;
-      }
-      #weather {
-        margin-top: 10px;
-      }
       .grid-container {
         grid-template-columns: 1fr;
+      }
+      #header-top, #header-bottom {
+        padding: 10px;
+      }
+      #datetime {
+        font-size: 2em;
+      }
+      #weather {
+        font-size: 1.1em;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Header with refresh icon, date/time, and weather -->
+  <!-- Header with two rows: top for date/time & refresh, bottom for weather -->
   <div id="header">
-    <div id="refresh-container">
+    <div id="header-top">
       <button id="refresh-button" title="Refresh">&#x21bb;</button>
+      <div id="datetime"></div>
     </div>
-    <div id="datetime"></div>
-    <div id="weather"></div>
+    <div id="header-bottom">
+      <div id="weather"></div>
+    </div>
   </div>
   
   <!-- Grid for Class Schedules -->
@@ -190,11 +212,10 @@
   
   <!-- Message/Notice area below schedules -->
   <div id="message-area">
-    <!-- If no messages, a default text will be shown -->
     <div id="default-message" style="color:#777;">No messages</div>
   </div>
   
-  <!-- PapaParse for CSV parsing -->
+  <!-- PapaParse library for CSV parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
     // Update live date/time every second
@@ -232,10 +253,10 @@
     updateWeather();
     setInterval(updateWeather, 600000); // update every 10 minutes
     
-    // Function to update table data (for class schedules)
+    // Update a table's data without full page reload
     function updateTable(tableElement, data) {
       const tbody = tableElement.querySelector('tbody');
-      tbody.innerHTML = '';  // clear previous content
+      tbody.innerHTML = '';  // Clear previous content
       data.forEach(row => {
         const tr = document.createElement('tr');
         const tdClass = document.createElement('td');
@@ -248,7 +269,7 @@
       });
     }
     
-    // CSV URLs for schedules and messages – update with your own published links
+    // CSV URLs for schedules and messages – update with your published links
     const urls = {
       "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
       "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
