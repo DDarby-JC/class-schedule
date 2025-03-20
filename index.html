@@ -2,33 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- Removed meta refresh to avoid full page reload -->
+  <!-- No full page refresh -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quad Schedule Display</title>
+  <title>Quad Schedule Display with Messages, Time & Weather</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f2f2f2;
       margin: 0;
-      padding: 20px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
+      position: relative;
     }
-    /* Header styling */
+    /* Header: date/time and weather */
     #header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    #current-date {
-      font-size: 2em;
-      color: #333;
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 10px;
     }
+    #datetime {
+      font-size: 1.5em;
+      color: #333;
+    }
+    #weather {
+      font-size: 1.2em;
+      color: #333;
+    }
+    /* Small refresh icon button, in the top right corner */
     #refresh-button {
-      padding: 10px 20px;
-      font-size: 1em;
+      background: none;
+      border: none;
+      font-size: 1.5em;
       cursor: pointer;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+    /* Message area styling */
+    #message-area {
+      width: 100%;
+      max-width: 1200px;
+      background: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+    .message {
+      margin-bottom: 10px;
+    }
+    .message-title {
+      font-weight: bold;
+      margin-bottom: 5px;
     }
     /* Grid layout for the four tables */
     .grid-container {
@@ -48,7 +78,7 @@
       font-size: 1.5em;
       padding: 10px;
     }
-    /* Styling for RN (maroon) and PN (gold) captions */
+    /* RN (maroon) and PN (gold) styling */
     #rn-day caption,
     #rn-eve caption {
       background: #800000; /* Maroon */
@@ -76,12 +106,21 @@
   </style>
 </head>
 <body>
-  <!-- Header with current date and refresh button -->
+  <!-- Refresh button as a small symbol -->
+  <button id="refresh-button" title="Refresh">&#x21bb;</button>
+  
+  <!-- Header with live date/time and weather -->
   <div id="header">
-    <div id="current-date"></div>
-    <button id="refresh-button">Refresh Now</button>
+    <div id="datetime"></div>
+    <div id="weather"></div>
   </div>
-
+  
+  <!-- Message/Notice Area -->
+  <div id="message-area">
+    <!-- Messages will be injected here -->
+  </div>
+  
+  <!-- Grid container for the four tables -->
   <div class="grid-container">
     <!-- RN Day Table -->
     <table id="rn-day">
@@ -92,9 +131,7 @@
           <th>Room #</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- Data rows will be injected here -->
-      </tbody>
+      <tbody></tbody>
     </table>
     
     <!-- RN Eve Table -->
@@ -106,9 +143,7 @@
           <th>Room #</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- Data rows will be injected here -->
-      </tbody>
+      <tbody></tbody>
     </table>
     
     <!-- PN Day Table -->
@@ -120,9 +155,7 @@
           <th>Room #</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- Data rows will be injected here -->
-      </tbody>
+      <tbody></tbody>
     </table>
     
     <!-- PN Eve Table -->
@@ -134,29 +167,52 @@
           <th>Room #</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- Data rows will be injected here -->
-      </tbody>
+      <tbody></tbody>
     </table>
   </div>
-
-  <!-- PapaParse for CSV parsing -->
+  
+  <!-- PapaParse library for CSV parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
-    // Update current date at the top of the page
-    function updateCurrentDate() {
+    // Update live date and time every second
+    function updateDateTime() {
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      document.getElementById('current-date').textContent = now.toLocaleDateString(undefined, options);
+      const dateStr = now.toLocaleDateString(undefined, options);
+      const timeStr = now.toLocaleTimeString();
+      document.getElementById('datetime').textContent = dateStr + ' ' + timeStr;
     }
-    updateCurrentDate();
-    // Optionally refresh the date every minute
-    setInterval(updateCurrentDate, 60000);
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+    
+    // Update weather using OpenWeatherMap (replace YOUR_API_KEY with your key)
+    function updateWeather() {
+      const apiKey = 'cd92bb216f62d4296dac9d6b6f6a5c27';
+      const zip = '33619';
+      const url = `https://api.openweathermap.org/data/2.5/weather?zip=${zip},us&units=imperial&appid=${apiKey}`;
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if(data.cod === 200) {
+            const temp = Math.round(data.main.temp);
+            const weatherDescription = data.weather[0].description;
+            document.getElementById('weather').textContent = `Weather: ${temp}°F, ${weatherDescription}`;
+          } else {
+            document.getElementById('weather').textContent = 'Weather data unavailable';
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching weather:', error);
+          document.getElementById('weather').textContent = 'Weather data unavailable';
+        });
+    }
+    updateWeather();
+    setInterval(updateWeather, 600000); // update every 10 minutes
 
-    // Function to update a table's data without full page reload
+    // Function to update a table's data (for schedule tables)
     function updateTable(tableElement, data) {
       const tbody = tableElement.querySelector('tbody');
-      tbody.innerHTML = ''; // Clear current rows
+      tbody.innerHTML = '';
       data.forEach(row => {
         const tr = document.createElement('tr');
         const tdClass = document.createElement('td');
@@ -168,16 +224,18 @@
         tbody.appendChild(tr);
       });
     }
-
-    // CSV URLs (using your provided links)
+    
+    // CSV URLs for the schedules and messages (update these as needed)
     const urls = {
       "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
       "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
       "pn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1551044945&single=true&output=csv",
-      "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv"
+      "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv",
+      // Replace with your published messages CSV URL
+      "messages": "https://docs.google.com/spreadsheets/d/e/YOUR_MESSAGES_SHEET_ID/pub?gid=0&single=true&output=csv"
     };
-
-    // Function to fetch and update table data from a CSV URL
+    
+    // Function to fetch and update schedule table data using PapaParse
     function fetchAndUpdate(url, tableId) {
       Papa.parse(url, {
         download: true,
@@ -190,22 +248,52 @@
         }
       });
     }
-
-    // Refresh all tables (called on manual refresh and at set intervals)
-    function refreshAllTables() {
-      Object.keys(urls).forEach(tableId => {
-        fetchAndUpdate(urls[tableId], tableId);
+    
+    // Load messages into the message area from CSV
+    function loadMessages() {
+      Papa.parse(urls["messages"], {
+        download: true,
+        header: true,
+        complete: function(results) {
+          const messages = results.data;
+          const messageArea = document.getElementById('message-area');
+          messageArea.innerHTML = '';
+          messages.forEach(msg => {
+            const div = document.createElement('div');
+            div.className = 'message';
+            const title = document.createElement('div');
+            title.className = 'message-title';
+            title.textContent = msg.Title || msg.title || '';
+            const text = document.createElement('div');
+            text.className = 'message-text';
+            text.textContent = msg.Message || msg.message || '';
+            div.appendChild(title);
+            div.appendChild(text);
+            messageArea.appendChild(div);
+          });
+        },
+        error: function(err) {
+          console.error("Error fetching messages CSV:", err);
+        }
       });
     }
-
-    // Initial data load
-    refreshAllTables();
-
-    // Auto-refresh data every minute without full page reload
-    setInterval(refreshAllTables, 60000);
-
-    // Attach event listener to the manual refresh button
-    document.getElementById('refresh-button').addEventListener('click', refreshAllTables);
+    
+    // Refresh all data (schedules and messages)
+    function refreshAll() {
+      fetchAndUpdate(urls["rn-day"], "rn-day");
+      fetchAndUpdate(urls["rn-eve"], "rn-eve");
+      fetchAndUpdate(urls["pn-day"], "pn-day");
+      fetchAndUpdate(urls["pn-eve"], "pn-eve");
+      loadMessages();
+    }
+    
+    // Initial load
+    refreshAll();
+    // Auto-refresh schedules and messages every minute
+    setInterval(refreshAll, 60000);
+    
+    // Manual refresh via the refresh button (icon)
+    document.getElementById('refresh-button').addEventListener('click', refreshAll);
   </script>
 </body>
 </html>
