@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- No full page refresh -->
+  <!-- Ensure the viewport scales correctly -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Class Schedule Display</title>
   <style>
@@ -14,20 +14,20 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #f5f5f5;
       margin: 0;
-      padding: 20px;
+      padding: 10px;
       color: #333;
     }
-    /* Header container with two rows */
+    /* Header container (fluid width for portrait mode) */
     #header {
       width: 100%;
-      max-width: 1200px;
-      margin: 0 auto 20px;
+      max-width: 100%;
+      margin: 0 auto 10px;
     }
     /* Top header row: Date/Time with refresh button */
     #header-top {
       position: relative;
       background: #fff;
-      padding: 10px 20px;
+      padding: 5px 10px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       border-radius: 8px 8px 0 0;
       text-align: center;
@@ -37,7 +37,7 @@
       left: 10px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 1.2em;
+      font-size: 1em;
       opacity: 0.7;
       background: none;
       border: none;
@@ -45,60 +45,60 @@
       color: #333;
     }
     #datetime {
-      font-size: 2.5em;
+      font-size: 1.8em;
       font-weight: bold;
       margin: 0;
     }
     /* Bottom header row: Weather */
     #header-bottom {
       background: #fff;
-      padding: 10px 20px;
+      padding: 5px 10px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       border-radius: 0 0 8px 8px;
       text-align: center;
       margin-top: -4px;
     }
     #weather {
-      font-size: 1.3em;
+      font-size: 1em;
       margin: 0;
     }
-    /* Grid container for schedules: fixed width with horizontal scrolling */
+    /* Grid container for schedules - fluid width */
     .grid-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      width: 1200px;  /* Fixed width forces two columns */
-      overflow-x: auto;
-      margin: 0 auto 20px;
+      gap: 6px;
+      width: 100%;
+      margin: 10px auto;
     }
     table {
       border-collapse: collapse;
       background: #fff;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       width: 100%;
-      border-radius: 8px;
+      border-radius: 6px;
       overflow: hidden;
       table-layout: fixed;
+      font-size: 0.75em;
     }
     caption {
-      font-size: 1.4em;
-      padding: 12px;
+      font-size: 0.9em;
+      padding: 4px;
       font-weight: bold;
     }
-    /* RN styling */
+    /* RN styling: maroon background with white text */
     #rn-day caption,
     #rn-eve caption {
       background: #800000;
       color: #fff;
     }
-    /* PN styling */
+    /* PN styling: gold background with dark text */
     #pn-day caption,
     #pn-eve caption {
       background: #FFD700;
       color: #333;
     }
     th, td {
-      padding: 12px;
+      padding: 4px 6px;
       text-align: left;
       border-bottom: 1px solid #ddd;
       overflow: hidden;
@@ -112,7 +112,7 @@
     tr:hover {
       background: #f1f1f1;
     }
-    /* Fixed column widths */
+    /* Force fixed column widths: 70% for Class, 30% for Room */
     table th:first-child,
     table td:first-child {
       width: 70%;
@@ -124,43 +124,27 @@
     /* Message/Notice area below schedules */
     #message-area {
       width: 100%;
-      max-width: 1200px;
       background: #fff;
       border: 1px solid #ddd;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 6px;
       border-radius: 8px;
-      margin: 0 auto;
+      margin: 10px auto 0;
+      font-size: 0.75em;
     }
     .message {
-      margin-bottom: 15px;
-      padding: 10px;
+      margin-bottom: 6px;
+      padding: 4px;
       border-left: 4px solid #800000;
     }
     .message-title {
-      font-size: 1.2em;
+      font-size: 0.9em;
       font-weight: bold;
-      margin-bottom: 5px;
+      margin-bottom: 2px;
     }
     .message-text {
-      font-size: 1em;
-      line-height: 1.4;
-    }
-    /* Responsive adjustments */
-    @media only screen and (max-width: 800px) {
-      .grid-container {
-        width: 100%;
-        grid-template-columns: 1fr; /* For very small screens, stack items */
-      }
-      #header-top, #header-bottom {
-        padding: 10px;
-      }
-      #datetime {
-        font-size: 2em;
-      }
-      #weather {
-        font-size: 1.1em;
-      }
+      font-size: 0.8em;
+      line-height: 1.2;
     }
   </style>
 </head>
@@ -176,7 +160,7 @@
     </div>
   </div>
   
-  <!-- Grid for Class Schedules -->
+  <!-- Grid for Class Schedules (2 columns x 2 rows) -->
   <div class="grid-container">
     <table id="rn-day">
       <caption>⚕️ RN Day</caption>
@@ -188,7 +172,6 @@
       </thead>
       <tbody></tbody>
     </table>
-    
     <table id="rn-eve">
       <caption>⚕️ RN Eve</caption>
       <thead>
@@ -199,7 +182,6 @@
       </thead>
       <tbody></tbody>
     </table>
-    
     <table id="pn-day">
       <caption>💊 PN Day</caption>
       <thead>
@@ -210,7 +192,6 @@
       </thead>
       <tbody></tbody>
     </table>
-    
     <table id="pn-eve">
       <caption>💊 PN Eve</caption>
       <thead>
@@ -242,7 +223,7 @@
     updateDateTime();
     setInterval(updateDateTime, 1000);
     
-    // Update weather info (replace YOUR_API_KEY with your OpenWeatherMap API key)
+    // Update weather info (replace YOUR_API_KEY with your actual OpenWeatherMap API key)
     function updateWeather() {
       const apiKey = 'cd92bb216f62d4296dac9d6b6f6a5c27';
       const zip = '33619';
@@ -264,12 +245,12 @@
         });
     }
     updateWeather();
-    setInterval(updateWeather, 600000); // update every 10 minutes
+    setInterval(updateWeather, 600000); // Update every 10 minutes
     
-    // Update table data (for schedules)
+    // Update a table's data without a full page reload
     function updateTable(tableElement, data) {
       const tbody = tableElement.querySelector('tbody');
-      tbody.innerHTML = '';  // Clear previous content
+      tbody.innerHTML = '';
       data.forEach(row => {
         const tr = document.createElement('tr');
         const tdClass = document.createElement('td');
