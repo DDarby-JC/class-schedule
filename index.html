@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- Refresh the page every 60 seconds -->
+  <meta http-equiv="refresh" content="60">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quad Schedule Display</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #current-date {
+      text-align: center;
+      font-size: 2em;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+    }
+    table {
+      border-collapse: collapse;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      width: 100%;
+    }
+    caption {
+      font-size: 1.5em;
+      background: #007BFF;
+      color: #fff;
+      padding: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background: #f7f7f7;
+    }
+    /* Responsive adjustments for portrait mode */
+    @media only screen and (max-width: 800px) {
+      .grid-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Current Day and Date -->
+  <div id="current-date"></div>
+
+  <div class="grid-container">
+    <!-- RN Day Table -->
+    <table id="rn-day">
+      <caption>RN Day</caption>
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Room #</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data rows will be injected here -->
+      </tbody>
+    </table>
+    
+    <!-- RN Eve Table -->
+    <table id="rn-eve">
+      <caption>RN Eve</caption>
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Room #</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data rows will be injected here -->
+      </tbody>
+    </table>
+    
+    <!-- PN Day Table -->
+    <table id="pn-day">
+      <caption>PN Day</caption>
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Room #</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data rows will be injected here -->
+      </tbody>
+    </table>
+    
+    <!-- PN Eve Table -->
+    <table id="pn-eve">
+      <caption>PN Eve</caption>
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Room #</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data rows will be injected here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Include PapaParse from a CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script>
+    // Function to update the current date display
+    function updateCurrentDate() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('current-date').textContent = now.toLocaleDateString(undefined, options);
+    }
+    updateCurrentDate();
+    // Refresh the current date every minute (if needed)
+    setInterval(updateCurrentDate, 60000);
+
+    // Function to update a table with CSV data
+    function updateTable(tableElement, data) {
+      const tbody = tableElement.querySelector('tbody');
+      tbody.innerHTML = '';  // Clear existing rows
+
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        const tdClass = document.createElement('td');
+        tdClass.textContent = row.Class || row.class || '';
+        const tdRoom = document.createElement('td');
+        tdRoom.textContent = row.Room || row.room || '';
+        tr.appendChild(tdClass);
+        tr.appendChild(tdRoom);
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Update these URLs with your own published Google Sheets CSV links.
+    const urls = {
+      "rn-day": "https://docs.google.com/spreadsheets/d/e/YOUR_SHEET_ID/pub?output=csv&gid=0",
+      "rn-eve": "https://docs.google.com/spreadsheets/d/e/YOUR_SHEET_ID/pub?output=csv&gid=1",
+      "pn-day": "https://docs.google.com/spreadsheets/d/e/YOUR_SHEET_ID/pub?output=csv&gid=2",
+      "pn-eve": "https://docs.google.com/spreadsheets/d/e/YOUR_SHEET_ID/pub?output=csv&gid=3"
+    };
+
+    // Function to fetch and update table data from a CSV URL
+    function fetchAndUpdate(url, tableId) {
+      Papa.parse(url, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          updateTable(document.getElementById(tableId), results.data);
+        },
+        error: function(err) {
+          console.error("Error fetching CSV:", err);
+        }
+      });
+    }
+
+    // Fetch data for each table initially
+    Object.keys(urls).forEach(tableId => {
+      fetchAndUpdate(urls[tableId], tableId);
+    });
+
+    // Optional: Refresh CSV data without full page reload
+    // setInterval(() => {
+    //   Object.keys(urls).forEach(tableId => {
+    //     fetchAndUpdate(urls[tableId], tableId);
+    //   });
+    // }, 60000);
+  </script>
+</body>
+</html>
