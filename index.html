@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <!-- Ensure proper scaling in portrait mode -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Class Schedule Display - Dark Mode</title>
+  <title>Class Schedule Display</title>
   <style>
     /* Global reset & base styles */
     *, *::before, *::after {
@@ -14,22 +14,23 @@
       margin: 0;
       padding: 10px;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #121212; /* Dark background */
-      color: #ddd;
-      -ms-overflow-style: none;  /* IE, Edge */
-      scrollbar-width: none;     /* Firefox */
+      background: #f5f5f5;
+      color: #333;
+      /* Hide vertical scrollbar */
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
     html::-webkit-scrollbar, body::-webkit-scrollbar {
-      display: none; /* Chrome, Safari, Opera */
+      display: none;
     }
-    /* ===== Header: Refresh, Date, Time & Mode Toggle ===== */
+    /* ===== Header ===== */
     header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #1e1e1e;
+      background: #fff;
       padding: 8px 15px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       border-radius: 8px;
       margin-bottom: 15px;
     }
@@ -37,9 +38,9 @@
       background: none;
       border: none;
       font-size: 1.2em;
-      opacity: 0.8;
+      opacity: 0.7;
       cursor: pointer;
-      color: #ddd;
+      color: inherit;
     }
     #date-display {
       font-size: 1.5em;
@@ -47,7 +48,7 @@
       flex: 1;
       text-align: center;
     }
-    /* Container for time and toggle button */
+    /* Container for time and mode toggle */
     #time-container {
       display: flex;
       align-items: center;
@@ -61,9 +62,8 @@
       border: none;
       font-size: 1.5em;
       cursor: pointer;
-      color: #ddd;
     }
-    /* ===== Main Content: Only one mode visible ===== */
+    /* ===== Tab Content: Only one active at a time ===== */
     .tab-content {
       display: none !important;
     }
@@ -79,8 +79,8 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      background: #1e1e1e;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       border-radius: 8px;
       overflow: hidden;
       table-layout: fixed;
@@ -97,27 +97,28 @@
       background: #800000;
       color: #fff;
     }
-    /* PN table header: dark gold */
+    /* PN table header: gold */
     #pn-day caption,
     #pn-eve caption {
-      background: #b8860b;
-      color: #fff;
+      background: #FFD700;
+      color: #333;
     }
     th, td {
       padding: 10px 8px;
       text-align: left;
-      border-bottom: 1px solid #333;
+      border-bottom: 1px solid #ddd;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
     }
     th {
-      background: #2e2e2e;
+      background: #f9f9f9;
       font-weight: 600;
     }
     tr:hover {
-      background: #333;
+      background: #f1f1f1;
     }
+    /* Fixed column widths: 70% for Class, 30% for Room */
     table th:first-child,
     table td:first-child {
       width: 70%;
@@ -136,20 +137,20 @@
       table-layout: fixed;
     }
     #room-grid td {
-      border: 1px solid #333;
+      border: 1px solid #ddd;
       padding: 6px;
       text-align: center;
+      /* Equal width for all rooms: 7 columns per row */
       width: calc(100% / 7);
-      color: #ddd;
     }
     /* ===== Preview Area (2×1 grid) ===== */
     #preview-area {
       margin-bottom: 15px;
     }
     .preview-content {
-      background: #1e1e1e;
-      border: 1px solid #333;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      background: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       padding: 8px;
       border-radius: 8px;
       margin-bottom: 10px;
@@ -180,7 +181,7 @@
     .preview-table th, .preview-table td {
       padding: 6px 4px;
       text-align: left;
-      border-bottom: 1px solid #333;
+      border-bottom: 1px solid #ddd;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -496,8 +497,8 @@
           const room = row[i] || "";
           const isUsed = room && usedRooms.has(room.toLowerCase());
           const bgColor = room
-            ? (isUsed ? '#ff6666' : '#66cc66')
-            : '#121212';
+            ? (isUsed ? '#ffcccc' : '#ccffcc')
+            : '#f5f5f5';
           html += `<td style="background:${bgColor};">${room}</td>`;
         }
         html += '</tr>';
