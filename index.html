@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Class Schedule Display</title>
   <style>
-    /* Global reset and base styles */
+    /* Global reset & base styles */
     *, *::before, *::after {
       box-sizing: border-box;
     }
@@ -24,7 +24,7 @@
       justify-content: space-between;
       background: #fff;
       padding: 8px 15px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       border-radius: 8px;
       margin-bottom: 15px;
     }
@@ -83,7 +83,7 @@
       width: 100%;
       border-collapse: collapse;
       background: #fff;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       border-radius: 8px;
       overflow: hidden;
       table-layout: fixed;
@@ -94,13 +94,13 @@
       padding: 8px;
       font-weight: bold;
     }
-    /* RN table header: maroon background */
+    /* RN table header: maroon */
     #rn-day caption,
     #rn-eve caption {
       background: #800000;
       color: #fff;
     }
-    /* PN table header: gold background */
+    /* PN table header: gold */
     #pn-day caption,
     #pn-eve caption {
       background: #FFD700;
@@ -134,7 +134,7 @@
     #message-area {
       background: #fff;
       border: 1px solid #ddd;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       padding: 10px;
       border-radius: 8px;
       margin-bottom: 15px;
@@ -147,12 +147,14 @@
     #room-grid table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 1em;
+      table-layout: fixed;
     }
     #room-grid td {
       border: 1px solid #ddd;
-      padding: 8px;
+      padding: 6px;
       text-align: center;
+      /* Force equal width by dividing total width by max columns (7) */
+      width: calc(100% / 7);
     }
     /* ===== Preview Area (2×1 grid) ===== */
     #preview-area {
@@ -403,7 +405,7 @@
       "messages": "https://docs.google.com/spreadsheets/d/e/YOUR_MESSAGES_SHEET_ID/pub?gid=0&single=true&output=csv"
     };
     
-    /* ----- Helper: Update Table with CSV Data ----- */
+    /* ----- Helper: Update a Table with CSV Data ----- */
     function updateTable(tableElement, data) {
       const tbody = tableElement.querySelector('tbody');
       tbody.innerHTML = "";
@@ -453,7 +455,7 @@
     
     /* ----- Load Preview Schedules ----- */
     function loadPreviewSchedules() {
-      // For Day mode, preview Eve schedule:
+      // For Day mode, preview the Eve schedule:
       Papa.parse(urls["rn-eve"], {
         download: true,
         header: true,
@@ -468,7 +470,7 @@
           updateTable(document.getElementById("preview-pn-eve"), results.data);
         }
       });
-      // For Eve mode, preview Day schedule:
+      // For Eve mode, preview the Day schedule:
       Papa.parse(urls["rn-day"], {
         download: true,
         header: true,
@@ -544,7 +546,7 @@
         }
       });
       
-      // Define all rooms as a 2D array
+      // Define all rooms as provided (ensuring all rows are included)
       const allRooms = [
         ["101", "102", "103", "104", "105"],
         ["201", "202", "203", "204", "205"],
@@ -552,15 +554,20 @@
         ["Skills Lab", "Trauma Bay", "Med Office", "Peds", "Ob Noel", "Simman", "ALF"]
       ];
       
-      // Build HTML for the room grid table
+      // We'll use a fixed maximum of 7 columns (since row 4 has 7 rooms).
+      const maxCols = 7;
       let html = '<table>';
       allRooms.forEach(row => {
         html += '<tr>';
-        row.forEach(room => {
-          const isUsed = usedRooms.has(room.toLowerCase());
-          const bgColor = isUsed ? '#ffcccc' : '#ccffcc';
+        // Fill cells up to maxCols; if a row has fewer rooms, add empty cells.
+        for (let i = 0; i < maxCols; i++) {
+          const room = row[i] || "";
+          const isUsed = room && usedRooms.has(room.toLowerCase());
+          const bgColor = room
+            ? (isUsed ? '#ffcccc' : '#ccffcc')
+            : '#f5f5f5';
           html += `<td style="background:${bgColor};">${room}</td>`;
-        });
+        }
         html += '</tr>';
       });
       html += '</table>';
@@ -574,7 +581,7 @@
       loadMainSchedules();
       loadMessages();
       loadPreviewSchedules();
-      // Delay updating room grid slightly to allow schedules to load
+      // Delay room grid update slightly to let schedules load
       setTimeout(updateRoomGrid, 1000);
     }
     refreshAll();
