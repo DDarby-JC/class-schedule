@@ -45,8 +45,8 @@
     #date-display {
       font-size: 1.5em;
       font-weight: bold;
-      text-align: center;
       flex: 1;
+      text-align: center;
     }
     /* Container for time and mode toggle */
     #time-container {
@@ -63,7 +63,13 @@
       font-size: 1.5em;
       cursor: pointer;
     }
-    /* ===== Main Content (Schedules, Messages, Room Grid, Preview) ===== */
+    /* ===== Tab Content: Only one active at a time ===== */
+    .tab-content {
+      display: none !important;
+    }
+    .tab-content.active {
+      display: block !important;
+    }
     .stacked-container {
       display: flex;
       flex-direction: column;
@@ -112,6 +118,7 @@
     tr:hover {
       background: #f1f1f1;
     }
+    /* Fixed column widths: 70% for Class, 30% for Room */
     table th:first-child,
     table td:first-child {
       width: 70%;
@@ -119,16 +126,6 @@
     table th:last-child,
     table td:last-child {
       width: 30%;
-    }
-    /* ===== Message Area ===== */
-    #message-area {
-      background: #fff;
-      border: 1px solid #ddd;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      font-size: 1em;
     }
     /* ===== Room Availability Grid ===== */
     #room-grid {
@@ -143,6 +140,7 @@
       border: 1px solid #ddd;
       padding: 6px;
       text-align: center;
+      /* Equal width for all rooms: 7 columns per row */
       width: calc(100% / 7);
     }
     /* ===== Preview Area (2×1 grid) ===== */
@@ -201,7 +199,6 @@
       #date-display { font-size: 1.3em; }
       #time-display { font-size: 1em; }
       #mode-toggle { font-size: 1.3em; }
-      .tab-button { padding: 8px 16px; font-size: 1em; }
     }
   </style>
 </head>
@@ -216,7 +213,7 @@
     </div>
   </header>
   
-  <!-- ===== Main Content: Two Mode Containers (Only one active at a time) ===== -->
+  <!-- ===== Main Content: Day and Eve Schedules (Only one visible) ===== -->
   <!-- Day Mode -->
   <div id="tab-day" class="tab-content active">
     <div class="stacked-container">
@@ -275,11 +272,6 @@
         </tbody>
       </table>
     </div>
-  </div>
-  
-  <!-- ===== Message Area ===== -->
-  <div id="message-area">
-    <div id="default-message" style="color:#777;">No messages</div>
   </div>
   
   <!-- ===== Room Availability Grid ===== -->
@@ -461,41 +453,9 @@
       });
     }
     
-    /* ----- Load Messages ----- */
-    function loadMessages() {
-      Papa.parse(urls["messages"], {
-        download: true,
-        header: true,
-        complete: function(results) {
-          const messages = results.data;
-          const messageArea = document.getElementById("message-area");
-          messageArea.innerHTML = "";
-          if (messages.length === 0 || (messages.length === 1 && !messages[0].Title && !messages[0].Message)) {
-            messageArea.innerHTML = '<div style="color:#777;">No messages</div>';
-          } else {
-            messages.forEach(msg => {
-              if (msg.Title || msg.Message) {
-                const div = document.createElement("div");
-                div.className = "message";
-                const title = document.createElement("div");
-                title.className = "message-title";
-                title.textContent = msg.Title || msg.title || "";
-                const text = document.createElement("div");
-                text.className = "message-text";
-                text.textContent = msg.Message || msg.message || "";
-                div.appendChild(title);
-                div.appendChild(text);
-                messageArea.appendChild(div);
-              }
-            });
-          }
-        }
-      });
-    }
-    
     /* ----- Update Room Availability Grid ----- */
     function updateRoomGrid() {
-      // Determine active mode by checking which main schedule container is visible
+      // Determine active mode: Day or Eve
       const activeTab = document.querySelector('.tab-content.active') ? document.querySelector('.tab-content.active').id : "tab-day";
       let tableIds;
       if (activeTab === 'tab-day') {
@@ -552,7 +512,6 @@
       updateDate();
       updateTime();
       loadMainSchedules();
-      loadMessages();
       loadPreviewSchedules();
       setTimeout(updateRoomGrid, 1000);
     }
@@ -561,10 +520,10 @@
     
     /* ----- Mode Toggle Logic ----- */
     let currentMode = "day"; // Default is Day mode
-    // Initially show Day mode content; hide Eve content and show appropriate preview
+    // Initially, Day mode active; preview of opposite (Eve) is shown
     document.getElementById('tab-day').classList.add('active');
     document.getElementById('tab-eve').classList.remove('active');
-    document.getElementById("preview-eve").style.display = "block"; // Preview of opposite (Eve) in Day mode
+    document.getElementById("preview-eve").style.display = "block";
     document.getElementById("preview-day").style.display = "none";
     
     document.getElementById('mode-toggle').addEventListener('click', () => {
@@ -587,6 +546,9 @@
       }
       setTimeout(updateRoomGrid, 500);
     });
+    
+    /* ----- Manual Refresh Button ----- */
+    document.getElementById('refresh-button').addEventListener('click', refreshAll);
   </script>
 </body>
 </html>
