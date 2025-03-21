@@ -10,12 +10,18 @@
     *, *::before, *::after {
       box-sizing: border-box;
     }
-    body {
+    html, body {
       margin: 0;
       padding: 10px;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #f5f5f5;
       color: #333;
+      /* Hide vertical scrollbar */
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    html::-webkit-scrollbar, body::-webkit-scrollbar {
+      display: none;
     }
     /* ===== Header ===== */
     header {
@@ -39,41 +45,25 @@
     #date-display {
       font-size: 1.5em;
       font-weight: bold;
-      flex: 1;
       text-align: center;
+      flex: 1;
     }
-    /* Now current time appears on the right */
+    /* Container for time and mode toggle */
+    #time-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
     #time-display {
       font-size: 1.2em;
-      text-align: right;
     }
-    /* ===== Tab Bar ===== */
-    #tabs {
-      display: flex;
-      justify-content: center;
-      margin: 0 auto 15px;
-    }
-    .tab-button {
-      background: #fff;
-      border: 1px solid #ddd;
-      padding: 10px 20px;
-      margin: 0 5px;
+    #mode-toggle {
+      background: none;
+      border: none;
+      font-size: 1.5em;
       cursor: pointer;
-      font-size: 1.2em;
-      border-radius: 8px 8px 0 0;
-      transition: background 0.3s, border-color 0.3s;
     }
-    .tab-button.active {
-      background: #f9f9f9;
-      border-bottom: 1px solid #f9f9f9;
-    }
-    /* ===== Tab Content ===== */
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
+    /* ===== Main Content (Schedules, Messages, Room Grid, Preview) ===== */
     .stacked-container {
       display: flex;
       flex-direction: column;
@@ -122,7 +112,6 @@
     tr:hover {
       background: #f1f1f1;
     }
-    /* Fixed column widths: 70% for Class, 30% for Room */
     table th:first-child,
     table td:first-child {
       width: 70%;
@@ -154,7 +143,6 @@
       border: 1px solid #ddd;
       padding: 6px;
       text-align: center;
-      /* Equal width for all rooms: 7 columns per row */
       width: calc(100% / 7);
     }
     /* ===== Preview Area (2×1 grid) ===== */
@@ -212,25 +200,24 @@
     @media only screen and (max-width: 600px) {
       #date-display { font-size: 1.3em; }
       #time-display { font-size: 1em; }
+      #mode-toggle { font-size: 1.3em; }
       .tab-button { padding: 8px 16px; font-size: 1em; }
     }
   </style>
 </head>
 <body>
-  <!-- ===== Header ===== -->
+  <!-- ===== Header: Refresh, Date, Time & Mode Toggle ===== -->
   <header>
     <button id="refresh-button" title="Refresh">&#x21bb;</button>
     <div id="date-display"></div>
-    <div id="time-display"></div>
+    <div id="time-container">
+      <span id="time-display"></span>
+      <button id="mode-toggle" title="Toggle Mode">🌞</button>
+    </div>
   </header>
   
-  <!-- ===== Tab Bar ===== -->
-  <div id="tabs">
-    <button class="tab-button active" data-tab="day">🌞 Day</button>
-    <button class="tab-button" data-tab="eve">🌜 Eve</button>
-  </div>
-  
-  <!-- ===== Tab Content: Day Schedules ===== -->
+  <!-- ===== Main Content: Two Mode Containers (Only one active at a time) ===== -->
+  <!-- Day Mode -->
   <div id="tab-day" class="tab-content active">
     <div class="stacked-container">
       <table id="rn-day">
@@ -260,7 +247,7 @@
     </div>
   </div>
   
-  <!-- ===== Tab Content: Eve Schedules ===== -->
+  <!-- Eve Mode -->
   <div id="tab-eve" class="tab-content">
     <div class="stacked-container">
       <table id="rn-eve">
@@ -508,8 +495,8 @@
     
     /* ----- Update Room Availability Grid ----- */
     function updateRoomGrid() {
-      // Determine active tab: Day or Eve
-      const activeTab = document.querySelector('.tab-content.active').id; // "tab-day" or "tab-eve"
+      // Determine active mode by checking which main schedule container is visible
+      const activeTab = document.querySelector('.tab-content.active') ? document.querySelector('.tab-content.active').id : "tab-day";
       let tableIds;
       if (activeTab === 'tab-day') {
         tableIds = ["rn-day", "pn-day"];
@@ -572,36 +559,34 @@
     refreshAll();
     setInterval(refreshAll, 60000);
     
-    /* ----- Tab Switching Logic ----- */
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
-    const previewDay = document.getElementById("preview-day");
-    const previewEve = document.getElementById("preview-eve");
+    /* ----- Mode Toggle Logic ----- */
+    let currentMode = "day"; // Default is Day mode
+    // Initially show Day mode content; hide Eve content and show appropriate preview
+    document.getElementById('tab-day').classList.add('active');
+    document.getElementById('tab-eve').classList.remove('active');
+    document.getElementById("preview-eve").style.display = "block"; // Preview of opposite (Eve) in Day mode
+    document.getElementById("preview-day").style.display = "none";
     
-    tabButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const targetTab = button.getAttribute('data-tab');
-        tabButtons.forEach(btn => btn.classList.remove('active'));
-        tabContents.forEach(content => content.classList.remove('active'));
-        button.classList.add('active');
-        document.getElementById('tab-' + targetTab).classList.add('active');
-        if (targetTab === 'day') {
-          previewEve.style.display = "block";
-          previewDay.style.display = "none";
-        } else {
-          previewDay.style.display = "block";
-          previewEve.style.display = "none";
-        }
-        setTimeout(updateRoomGrid, 500);
-      });
+    document.getElementById('mode-toggle').addEventListener('click', () => {
+      if (currentMode === "day") {
+        // Switch to Eve mode
+        currentMode = "eve";
+        document.getElementById('mode-toggle').textContent = "🌜";
+        document.getElementById('tab-day').classList.remove('active');
+        document.getElementById('tab-eve').classList.add('active');
+        document.getElementById("preview-day").style.display = "block";
+        document.getElementById("preview-eve").style.display = "none";
+      } else {
+        // Switch to Day mode
+        currentMode = "day";
+        document.getElementById('mode-toggle').textContent = "🌞";
+        document.getElementById('tab-eve').classList.remove('active');
+        document.getElementById('tab-day').classList.add('active');
+        document.getElementById("preview-eve").style.display = "block";
+        document.getElementById("preview-day").style.display = "none";
+      }
+      setTimeout(updateRoomGrid, 500);
     });
-    
-    // Initially, set Day mode active so show preview of Eve schedule
-    previewEve.style.display = "block";
-    previewDay.style.display = "none";
-    
-    /* ----- Manual Refresh Button ----- */
-    document.getElementById('refresh-button').addEventListener('click', refreshAll);
   </script>
 </body>
 </html>
