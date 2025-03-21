@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Class Schedule Display</title>
   <style>
-    /* Global reset and flex container for full viewport height */
+    /* Global reset & base styles */
     *, *::before, *::after {
       box-sizing: border-box;
     }
@@ -16,20 +16,17 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #f5f5f5;
       color: #333;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
     }
-    /* Header: takes up roughly 10% of the viewport height */
+    /* ===== Header ===== */
     header {
-      flex: 0 0 10vh;
       display: flex;
       align-items: center;
       justify-content: space-between;
       background: #fff;
-      padding: 0 15px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      padding: 8px 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       border-radius: 8px;
+      margin-bottom: 15px;
     }
     #refresh-button {
       background: none;
@@ -42,44 +39,70 @@
     #date-display {
       font-size: 1.5em;
       font-weight: bold;
-      text-align: center;
       flex: 1;
+      text-align: center;
     }
     #weather {
       font-size: 1.2em;
       text-align: right;
     }
-    /* Main area: upcoming class schedule in a 2x1 grid */
-    main {
-      flex: 1;
-      margin: 15px 0;
-      overflow-y: auto;
+    /* ===== Tab Bar ===== */
+    #tabs {
+      display: flex;
+      justify-content: center;
+      margin: 0 auto 15px;
     }
-    .schedule-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+    .tab-button {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 10px 20px;
+      margin: 0 5px;
+      cursor: pointer;
+      font-size: 1.2em;
+      border-radius: 8px 8px 0 0;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .tab-button.active {
+      background: #f9f9f9;
+      border-bottom: 1px solid #f9f9f9;
+    }
+    /* ===== Tab Content ===== */
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .stacked-container {
+      display: flex;
+      flex-direction: column;
       gap: 15px;
+      margin-bottom: 15px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
       background: #fff;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       border-radius: 8px;
       overflow: hidden;
       table-layout: fixed;
+      font-size: 1em;
     }
     caption {
       font-size: 1.2em;
       padding: 8px;
       font-weight: bold;
     }
-    /* RN table header (maroon) and PN table header (gold) */
-    #rn-table caption {
+    /* RN styling: maroon background */
+    #rn-day caption,
+    #rn-eve caption {
       background: #800000;
       color: #fff;
     }
-    #pn-table caption {
+    /* PN styling: gold background */
+    #pn-day caption,
+    #pn-eve caption {
       background: #FFD700;
       color: #333;
     }
@@ -98,7 +121,7 @@
     tr:hover {
       background: #f1f1f1;
     }
-    /* Force fixed column widths: 70% for Class, 30% for Room */
+    /* Fixed column widths: 70% for Class, 30% for Room */
     table th:first-child,
     table td:first-child {
       width: 70%;
@@ -107,35 +130,93 @@
     table td:last-child {
       width: 30%;
     }
-    /* Footer: large digital clock in its own row */
-    footer {
-      flex: 0 0 15vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3em;
-      font-weight: bold;
+    /* ===== Message Area ===== */
+    #message-area {
       background: #fff;
-      padding: 10px 15px;
-      box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.15);
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      padding: 10px;
       border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 1em;
+    }
+    /* ===== Preview Area (2x1 Grid) ===== */
+    #preview-area {
+      display: none;
+      margin-bottom: 15px;
+    }
+    .preview-content {
+      background: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      padding: 8px;
+      border-radius: 8px;
+    }
+    .preview-header {
+      font-size: 1em;
+      font-weight: bold;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .preview-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 0.9em;
+    }
+    .preview-table caption {
+      font-size: 0.9em;
+      padding: 4px;
+      font-weight: bold;
+    }
+    .preview-table th, .preview-table td {
+      padding: 6px 4px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .preview-table th:first-child,
+    .preview-table td:first-child {
+      width: 70%;
+    }
+    .preview-table th:last-child,
+    .preview-table td:last-child {
+      width: 30%;
+    }
+    /* ===== Responsive Adjustments ===== */
+    @media only screen and (max-width: 600px) {
+      #date-display { font-size: 1.3em; }
+      #weather { font-size: 1em; }
+      .tab-button { padding: 8px 16px; font-size: 1em; }
     }
   </style>
 </head>
 <body>
-  <!-- Header: Refresh button, Date, Weather -->
+  <!-- ===== Header ===== -->
   <header>
     <button id="refresh-button" title="Refresh">&#x21bb;</button>
     <div id="date-display"></div>
     <div id="weather"></div>
   </header>
   
-  <!-- Main: Upcoming Class Schedule (2-column grid) -->
-  <main>
-    <div class="schedule-grid">
-      <!-- RN Schedule (left column) -->
-      <table id="rn-table">
-        <caption>RN Program</caption>
+  <!-- ===== Tab Bar ===== -->
+  <div id="tabs">
+    <button class="tab-button active" data-tab="day">🌞 Day</button>
+    <button class="tab-button" data-tab="eve">🌜 Eve</button>
+  </div>
+  
+  <!-- ===== Tab Content: Day Schedules ===== -->
+  <div id="tab-day" class="tab-content active">
+    <div class="stacked-container">
+      <table id="rn-day">
+        <caption>RN Day</caption>
         <thead>
           <tr>
             <th>Class</th>
@@ -143,12 +224,11 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Data will be injected via JavaScript -->
+          <!-- RN Day data injected here -->
         </tbody>
       </table>
-      <!-- PN Schedule (right column) -->
-      <table id="pn-table">
-        <caption>PN Program</caption>
+      <table id="pn-day">
+        <caption>PN Day</caption>
         <thead>
           <tr>
             <th>Class</th>
@@ -156,30 +236,125 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Data will be injected via JavaScript -->
+          <!-- PN Day data injected here -->
         </tbody>
       </table>
     </div>
-  </main>
+  </div>
   
-  <!-- Footer: Large Digital Clock (current time) -->
-  <footer>
-    <div id="time-display"></div>
-  </footer>
+  <!-- ===== Tab Content: Eve Schedules ===== -->
+  <div id="tab-eve" class="tab-content">
+    <div class="stacked-container">
+      <table id="rn-eve">
+        <caption>RN Eve</caption>
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th>Room #</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- RN Eve data injected here -->
+        </tbody>
+      </table>
+      <table id="pn-eve">
+        <caption>PN Eve</caption>
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th>Room #</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- PN Eve data injected here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
   
-  <!-- PapaParse library for CSV parsing -->
+  <!-- ===== Message Area ===== -->
+  <div id="message-area">
+    <div id="default-message" style="color:#777;">No messages</div>
+  </div>
+  
+  <!-- ===== Preview Area: Opposite Schedule (2×1 grid) ===== -->
+  <div id="preview-area">
+    <!-- When in Day mode, show preview of Eve schedule -->
+    <div id="preview-eve" class="preview-content" style="display:none;">
+      <div class="preview-header">🌜 Eve (Preview)</div>
+      <div class="preview-grid">
+        <table id="preview-rn-eve" class="preview-table">
+          <caption>RN Eve</caption>
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Room #</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- RN Eve preview data injected here -->
+          </tbody>
+        </table>
+        <table id="preview-pn-eve" class="preview-table">
+          <caption>PN Eve</caption>
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Room #</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- PN Eve preview data injected here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- When in Eve mode, show preview of Day schedule -->
+    <div id="preview-day" class="preview-content" style="display:none;">
+      <div class="preview-header">🌞 Day (Preview)</div>
+      <div class="preview-grid">
+        <table id="preview-rn-day" class="preview-table">
+          <caption>RN Day</caption>
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Room #</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- RN Day preview data injected here -->
+          </tbody>
+        </table>
+        <table id="preview-pn-day" class="preview-table">
+          <caption>PN Day</caption>
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Room #</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- PN Day preview data injected here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ===== PapaParse Library ===== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
-    // Update Date Display in Header (only the date)
+    // Update Date Display
     function updateDate() {
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
       document.getElementById('date-display').textContent = now.toLocaleDateString(undefined, options);
     }
     updateDate();
-    // Update Weather Information
+    
+    // Update Weather Info
     function updateWeather() {
-      const apiKey = 'YOUR_API_KEY';  // Replace with your OpenWeatherMap API key
+      const apiKey = 'cd92bb216f62d4296dac9d6b6f6a5c27'; // Replace with your OpenWeatherMap API key
       const zip = '33619';
       const url = `https://api.openweathermap.org/data/2.5/weather?zip=${zip},us&units=imperial&appid=${apiKey}`;
       fetch(url)
@@ -200,58 +375,171 @@
     }
     updateWeather();
     
-    // Update Large Time Display in Footer
-    function updateTime() {
-      const now = new Date();
-      // Format as HH:MM:SS (or use locale time)
-      document.getElementById('time-display').textContent = now.toLocaleTimeString();
-    }
-    updateTime();
-    setInterval(updateTime, 1000);
-    
-    // CSV URLs for schedules – update these with your published links
+    // CSV URLs for schedules and messages – update with your published links
     const urls = {
-      "rn": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
-      "pn": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1551044945&single=true&output=csv"
+      "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
+      "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
+      "pn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1551044945&single=true&output=csv",
+      "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv",
+      "messages": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1334066845&single=true&output=csv"
     };
     
-    // Helper function to update a table with CSV data using PapaParse
-    function updateTable(tableId, csvUrl) {
-      Papa.parse(csvUrl, {
+    // Helper: Update a table with CSV data
+    function updateTable(tableElement, data) {
+      const tbody = tableElement.querySelector('tbody');
+      tbody.innerHTML = "";
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        const tdClass = document.createElement('td');
+        tdClass.textContent = row.Class || row.class || "";
+        const tdRoom = document.createElement('td');
+        tdRoom.textContent = row.Room || row.room || "";
+        tr.appendChild(tdClass);
+        tr.appendChild(tdRoom);
+        tbody.appendChild(tr);
+      });
+    }
+    
+    // Load main schedules
+    function loadMainSchedules() {
+      Papa.parse(urls["rn-day"], {
         download: true,
         header: true,
         complete: function(results) {
-          const tbody = document.querySelector('#' + tableId + ' tbody');
-          tbody.innerHTML = "";
-          results.data.forEach(row => {
-            const tr = document.createElement('tr');
-            const tdClass = document.createElement('td');
-            tdClass.textContent = row.Class || row.class || "";
-            const tdRoom = document.createElement('td');
-            tdRoom.textContent = row.Room || row.room || "";
-            tr.appendChild(tdClass);
-            tr.appendChild(tdRoom);
-            tbody.appendChild(tr);
-          });
-        },
-        error: function(err) {
-          console.error("Error fetching CSV for " + tableId + ":", err);
+          updateTable(document.getElementById("rn-day"), results.data);
+        }
+      });
+      Papa.parse(urls["pn-day"], {
+        download: true,
+        header: true,
+        complete: function(results) {
+          updateTable(document.getElementById("pn-day"), results.data);
+        }
+      });
+      Papa.parse(urls["rn-eve"], {
+        download: true,
+        header: true,
+        complete: function(results) {
+          updateTable(document.getElementById("rn-eve"), results.data);
+        }
+      });
+      Papa.parse(urls["pn-eve"], {
+        download: true,
+        header: true,
+        complete: function(results) {
+          updateTable(document.getElementById("pn-eve"), results.data);
         }
       });
     }
     
-    // Refresh All Data: schedules, date, weather, and time
+    // Load preview schedules (for opposite view)
+    function loadPreviewSchedules() {
+      // For Day mode, preview Eve schedule:
+      Papa.parse(urls["rn-eve"], {
+        download: true,
+        header: true,
+        complete: function(results) {
+          updateTable(document.getElementById("preview-rn-eve"), results.data);
+        }
+      });
+      Papa.parse(urls["pn-eve"], {
+        download: true,
+        header: true,
+        complete: function(results) {
+          updateTable(document.getElementById("preview-pn-eve"), results.data);
+        }
+      });
+      // For Eve mode, preview Day schedule:
+      Papa.parse(urls["rn-day"], {
+        download: true,
+        header: true,
+        complete: function(results) {
+          updateTable(document.getElementById("preview-rn-day"), results.data);
+        }
+      });
+      Papa.parse(urls["pn-day"], {
+        download: true,
+        header: true,
+        complete: function(results) {
+          updateTable(document.getElementById("preview-pn-day"), results.data);
+        }
+      });
+    }
+    
+    // Load messages
+    function loadMessages() {
+      Papa.parse(urls["messages"], {
+        download: true,
+        header: true,
+        complete: function(results) {
+          const messages = results.data;
+          const messageArea = document.getElementById("message-area");
+          messageArea.innerHTML = "";
+          if (messages.length === 0 || (messages.length === 1 && !messages[0].Title && !messages[0].Message)) {
+            messageArea.innerHTML = '<div style="color:#777;">No messages</div>';
+          } else {
+            messages.forEach(msg => {
+              if (msg.Title || msg.Message) {
+                const div = document.createElement("div");
+                div.className = "message";
+                const title = document.createElement("div");
+                title.className = "message-title";
+                title.textContent = msg.Title || msg.title || "";
+                const text = document.createElement("div");
+                text.className = "message-text";
+                text.textContent = msg.Message || msg.message || "";
+                div.appendChild(title);
+                div.appendChild(text);
+                messageArea.appendChild(div);
+              }
+            });
+          }
+        }
+      });
+    }
+    
+    // Refresh all data
     function refreshAll() {
       updateDate();
       updateWeather();
-      updateTable("rn-table", urls.rn);
-      updateTable("pn-table", urls.pn);
+      loadMainSchedules();
+      loadMessages();
+      loadPreviewSchedules();
     }
-    
-    // Initial load
     refreshAll();
-    // Auto-refresh every minute
     setInterval(refreshAll, 60000);
+    
+    // Tab switching logic
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const previewDay = document.getElementById("preview-day");
+    const previewEve = document.getElementById("preview-eve");
+    
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const targetTab = button.getAttribute('data-tab');
+        // Remove active class from all buttons and contents
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+        // Add active class to clicked button and corresponding content
+        button.classList.add('active');
+        document.getElementById('tab-' + targetTab).classList.add('active');
+        // Update preview area based on active tab
+        if (targetTab === 'day') {
+          // When in Day mode, show preview of Eve schedule
+          previewEve.style.display = "block";
+          previewDay.style.display = "none";
+        } else {
+          // When in Eve mode, show preview of Day schedule
+          previewDay.style.display = "block";
+          previewEve.style.display = "none";
+        }
+      });
+    });
+    
+    // Initially, set Day mode active so show preview of Eve schedule
+    previewEve.style.display = "block";
+    previewDay.style.display = "none";
     
     // Manual refresh button
     document.getElementById('refresh-button').addEventListener('click', refreshAll);
