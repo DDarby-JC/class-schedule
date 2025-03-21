@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Class Schedule Display</title>
   <style>
-    /* Global reset & base styles */
+    /* Global reset and base styles */
     *, *::before, *::after {
       box-sizing: border-box;
     }
@@ -24,7 +24,7 @@
       justify-content: space-between;
       background: #fff;
       padding: 8px 15px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       border-radius: 8px;
       margin-bottom: 15px;
     }
@@ -83,7 +83,7 @@
       width: 100%;
       border-collapse: collapse;
       background: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       border-radius: 8px;
       overflow: hidden;
       table-layout: fixed;
@@ -94,13 +94,13 @@
       padding: 8px;
       font-weight: bold;
     }
-    /* RN styling: maroon background */
+    /* RN table header: maroon background */
     #rn-day caption,
     #rn-eve caption {
       background: #800000;
       color: #fff;
     }
-    /* PN styling: gold background */
+    /* PN table header: gold background */
     #pn-day caption,
     #pn-eve caption {
       background: #FFD700;
@@ -134,15 +134,28 @@
     #message-area {
       background: #fff;
       border: 1px solid #ddd;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       padding: 10px;
       border-radius: 8px;
       margin-bottom: 15px;
       font-size: 1em;
     }
-    /* ===== Preview Area (2x1 Grid) ===== */
+    /* ===== Room Availability Grid ===== */
+    #room-grid {
+      margin-bottom: 15px;
+    }
+    #room-grid table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1em;
+    }
+    #room-grid td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    /* ===== Preview Area (2×1 grid) ===== */
     #preview-area {
-      display: none;
       margin-bottom: 15px;
     }
     .preview-content {
@@ -151,6 +164,8 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       padding: 8px;
       border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 0.9em;
     }
     .preview-header {
       font-size: 1em;
@@ -277,9 +292,14 @@
     <div id="default-message" style="color:#777;">No messages</div>
   </div>
   
-  <!-- ===== Preview Area: Opposite Schedule (2×1 grid) ===== -->
+  <!-- ===== Room Availability Grid ===== -->
+  <div id="room-grid">
+    <!-- Room grid table will be injected here -->
+  </div>
+  
+  <!-- ===== Preview Area (2×1 grid) ===== -->
   <div id="preview-area">
-    <!-- When in Day mode, show preview of Eve schedule -->
+    <!-- When in Day mode, preview the Eve schedule -->
     <div id="preview-eve" class="preview-content" style="display:none;">
       <div class="preview-header">🌜 Eve (Preview)</div>
       <div class="preview-grid">
@@ -292,7 +312,7 @@
             </tr>
           </thead>
           <tbody>
-            <!-- RN Eve preview data injected here -->
+            <!-- Preview RN Eve data -->
           </tbody>
         </table>
         <table id="preview-pn-eve" class="preview-table">
@@ -304,12 +324,12 @@
             </tr>
           </thead>
           <tbody>
-            <!-- PN Eve preview data injected here -->
+            <!-- Preview PN Eve data -->
           </tbody>
         </table>
       </div>
     </div>
-    <!-- When in Eve mode, show preview of Day schedule -->
+    <!-- When in Eve mode, preview the Day schedule -->
     <div id="preview-day" class="preview-content" style="display:none;">
       <div class="preview-header">🌞 Day (Preview)</div>
       <div class="preview-grid">
@@ -322,7 +342,7 @@
             </tr>
           </thead>
           <tbody>
-            <!-- RN Day preview data injected here -->
+            <!-- Preview RN Day data -->
           </tbody>
         </table>
         <table id="preview-pn-day" class="preview-table">
@@ -334,7 +354,7 @@
             </tr>
           </thead>
           <tbody>
-            <!-- PN Day preview data injected here -->
+            <!-- Preview PN Day data -->
           </tbody>
         </table>
       </div>
@@ -344,7 +364,7 @@
   <!-- ===== PapaParse Library ===== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
-    // Update Date Display
+    /* ----- Header Data ----- */
     function updateDate() {
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -352,9 +372,8 @@
     }
     updateDate();
     
-    // Update Weather Info
     function updateWeather() {
-      const apiKey = 'cd92bb216f62d4296dac9d6b6f6a5c27'; // Replace with your OpenWeatherMap API key
+      const apiKey = 'YOUR_API_KEY'; // Replace with your OpenWeatherMap API key
       const zip = '33619';
       const url = `https://api.openweathermap.org/data/2.5/weather?zip=${zip},us&units=imperial&appid=${apiKey}`;
       fetch(url)
@@ -375,16 +394,16 @@
     }
     updateWeather();
     
-    // CSV URLs for schedules and messages – update with your published links
+    /* ----- CSV URLs ----- */
     const urls = {
       "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
       "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
       "pn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1551044945&single=true&output=csv",
       "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv",
-      "messages": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1334066845&single=true&output=csv"
+      "messages": "https://docs.google.com/spreadsheets/d/e/YOUR_MESSAGES_SHEET_ID/pub?gid=0&single=true&output=csv"
     };
     
-    // Helper: Update a table with CSV data
+    /* ----- Helper: Update Table with CSV Data ----- */
     function updateTable(tableElement, data) {
       const tbody = tableElement.querySelector('tbody');
       tbody.innerHTML = "";
@@ -400,7 +419,7 @@
       });
     }
     
-    // Load main schedules
+    /* ----- Load Main Schedules ----- */
     function loadMainSchedules() {
       Papa.parse(urls["rn-day"], {
         download: true,
@@ -432,7 +451,7 @@
       });
     }
     
-    // Load preview schedules (for opposite view)
+    /* ----- Load Preview Schedules ----- */
     function loadPreviewSchedules() {
       // For Day mode, preview Eve schedule:
       Papa.parse(urls["rn-eve"], {
@@ -466,7 +485,7 @@
       });
     }
     
-    // Load messages
+    /* ----- Load Messages ----- */
     function loadMessages() {
       Papa.parse(urls["messages"], {
         download: true,
@@ -498,18 +517,70 @@
       });
     }
     
-    // Refresh all data
+    /* ----- Update Room Availability Grid ----- */
+    function updateRoomGrid() {
+      // Determine which tab is active (Day or Eve)
+      const activeTab = document.querySelector('.tab-content.active').id; // "tab-day" or "tab-eve"
+      let tableIds;
+      if (activeTab === 'tab-day') {
+        tableIds = ["rn-day", "pn-day"];
+      } else {
+        tableIds = ["rn-eve", "pn-eve"];
+      }
+      let usedRooms = new Set();
+      tableIds.forEach(id => {
+        const tbody = document.querySelector('#' + id + ' tbody');
+        if (tbody) {
+          const rows = tbody.querySelectorAll('tr');
+          rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length > 1) {
+              const roomVal = cells[1].textContent.trim();
+              if (roomVal) {
+                usedRooms.add(roomVal.toLowerCase());
+              }
+            }
+          });
+        }
+      });
+      
+      // Define all rooms as a 2D array
+      const allRooms = [
+        ["101", "102", "103", "104", "105"],
+        ["201", "202", "203", "204", "205"],
+        ["Conference", "Computer Lab", "Lib - Main", "Lib - SR1", "Lib - SR2", "Lib - SR3"],
+        ["Skills Lab", "Trauma Bay", "Med Office", "Peds", "Ob Noel", "Simman", "ALF"]
+      ];
+      
+      // Build HTML for the room grid table
+      let html = '<table>';
+      allRooms.forEach(row => {
+        html += '<tr>';
+        row.forEach(room => {
+          const isUsed = usedRooms.has(room.toLowerCase());
+          const bgColor = isUsed ? '#ffcccc' : '#ccffcc';
+          html += `<td style="background:${bgColor};">${room}</td>`;
+        });
+        html += '</tr>';
+      });
+      html += '</table>';
+      document.getElementById('room-grid').innerHTML = html;
+    }
+    
+    /* ----- Refresh All Data ----- */
     function refreshAll() {
       updateDate();
       updateWeather();
       loadMainSchedules();
       loadMessages();
       loadPreviewSchedules();
+      // Delay updating room grid slightly to allow schedules to load
+      setTimeout(updateRoomGrid, 1000);
     }
     refreshAll();
     setInterval(refreshAll, 60000);
     
-    // Tab switching logic
+    /* ----- Tab Switching Logic ----- */
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
     const previewDay = document.getElementById("preview-day");
@@ -521,19 +592,19 @@
         // Remove active class from all buttons and contents
         tabButtons.forEach(btn => btn.classList.remove('active'));
         tabContents.forEach(content => content.classList.remove('active'));
-        // Add active class to clicked button and corresponding content
+        // Activate selected tab content
         button.classList.add('active');
         document.getElementById('tab-' + targetTab).classList.add('active');
         // Update preview area based on active tab
         if (targetTab === 'day') {
-          // When in Day mode, show preview of Eve schedule
           previewEve.style.display = "block";
           previewDay.style.display = "none";
         } else {
-          // When in Eve mode, show preview of Day schedule
           previewDay.style.display = "block";
           previewEve.style.display = "none";
         }
+        // Update room grid after tab switch
+        setTimeout(updateRoomGrid, 500);
       });
     });
     
@@ -541,7 +612,7 @@
     previewEve.style.display = "block";
     previewDay.style.display = "none";
     
-    // Manual refresh button
+    /* ----- Manual Refresh Button ----- */
     document.getElementById('refresh-button').addEventListener('click', refreshAll);
   </script>
 </body>
