@@ -16,6 +16,7 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #f5f5f5;
       color: #333;
+      /* Hide vertical scrollbar */
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
@@ -47,23 +48,18 @@
       flex: 1;
       text-align: center;
     }
-    /* Container for time and mode toggle */
-    #time-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
     #time-display {
       font-size: 1.2em;
+      text-align: right;
     }
-    #mode-toggle {
-      background: none;
-      border: none;
+    /* ===== Section Headings ===== */
+    h2 {
+      margin: 10px 0;
+      text-align: center;
       font-size: 1.5em;
-      cursor: pointer;
     }
-    /* ===== Main Content: Two-Column Grid Layout ===== */
-    .landscape-grid {
+    /* ===== Grid Container for Schedules ===== */
+    .grid-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 15px;
@@ -72,7 +68,6 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      background: #fff;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       border-radius: 8px;
       overflow: hidden;
@@ -84,17 +79,31 @@
       padding: 8px;
       font-weight: bold;
     }
-    /* RN table header: maroon */
-    #rn-day caption,
-    #rn-eve caption {
+    /* ----- Day Schedule Styling (Light Mode) ----- */
+    #day-schedule table {
+      background: #fff;
+      color: #333;
+    }
+    #rn-day caption {
       background: #800000;
       color: #fff;
     }
-    /* PN table header: gold */
-    #pn-day caption,
-    #pn-eve caption {
+    #pn-day caption {
       background: #FFD700;
       color: #333;
+    }
+    /* ----- Evening Schedule Styling (Darker) ----- */
+    #evening-schedule table {
+      background: #333;
+      color: #fff;
+    }
+    #rn-eve caption {
+      background: #600000;
+      color: #fff;
+    }
+    #pn-eve caption {
+      background: #cc9900;
+      color: #fff;
     }
     th, td {
       padding: 10px 8px;
@@ -104,12 +113,19 @@
       white-space: nowrap;
       text-overflow: ellipsis;
     }
+    /* For evening mode, change border color */
+    #evening-schedule th, #evening-schedule td {
+      border-bottom: 1px solid #555;
+    }
     th {
       background: #f9f9f9;
       font-weight: 600;
     }
     tr:hover {
       background: #f1f1f1;
+    }
+    #evening-schedule tr:hover {
+      background: #444;
     }
     /* Fixed column widths: 70% for Class, 30% for Room */
     table th:first-child,
@@ -124,25 +140,22 @@
     @media only screen and (max-width: 600px) {
       #date-display { font-size: 1.3em; }
       #time-display { font-size: 1em; }
-      #mode-toggle { font-size: 1.3em; }
+      h2 { font-size: 1.3em; }
     }
   </style>
 </head>
 <body>
-  <!-- ===== Header: Refresh, Date, Time & Mode Toggle ===== -->
+  <!-- ===== Header ===== -->
   <header>
     <button id="refresh-button" title="Refresh">&#x21bb;</button>
     <div id="date-display"></div>
-    <div id="time-container">
-      <span id="time-display"></span>
-      <button id="mode-toggle" title="Toggle Mode">🌞</button>
-    </div>
+    <div id="time-display"></div>
   </header>
   
-  <!-- ===== Main Content: Landscape Schedules ===== -->
-  <!-- Day Mode Container -->
-  <div id="tab-day" class="tab-content active">
-    <div class="landscape-grid">
+  <!-- ===== Day Schedule Section ===== -->
+  <section id="day-schedule">
+    <h2>Day Schedule</h2>
+    <div class="grid-container">
       <table id="rn-day">
         <caption>RN Day</caption>
         <thead>
@@ -168,11 +181,12 @@
         </tbody>
       </table>
     </div>
-  </div>
+  </section>
   
-  <!-- Eve Mode Container -->
-  <div id="tab-eve" class="tab-content">
-    <div class="landscape-grid">
+  <!-- ===== Evening Schedule Section ===== -->
+  <section id="evening-schedule">
+    <h2>Evening Schedule</h2>
+    <div class="grid-container">
       <table id="rn-eve">
         <caption>RN Eve</caption>
         <thead>
@@ -198,12 +212,12 @@
         </tbody>
       </table>
     </div>
-  </div>
+  </section>
   
   <!-- ===== PapaParse Library ===== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
-    /* ----- Header Data ----- */
+    // Update Date in Header
     function updateDate() {
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -211,7 +225,7 @@
     }
     updateDate();
     
-    // Update current time in header (every second)
+    // Update Current Time in Header (every second)
     function updateTime() {
       const now = new Date();
       document.getElementById('time-display').textContent = now.toLocaleTimeString();
@@ -219,15 +233,15 @@
     updateTime();
     setInterval(updateTime, 1000);
     
-    /* ----- CSV URLs ----- */
+    // CSV URLs (update these with your published URLs)
     const urls = {
       "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
-      "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
       "pn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1551044945&single=true&output=csv",
+      "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
       "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv"
     };
     
-    /* ----- Helper: Update a Table with CSV Data ----- */
+    // Helper: Update Table with CSV Data
     function updateTable(tableElement, data) {
       const tbody = tableElement.querySelector('tbody');
       tbody.innerHTML = "";
@@ -243,7 +257,7 @@
       });
     }
     
-    /* ----- Load Main Schedules ----- */
+    // Load Main Schedules
     function loadMainSchedules() {
       Papa.parse(urls["rn-day"], {
         download: true,
@@ -283,28 +297,6 @@
     }
     refreshAll();
     setInterval(refreshAll, 60000);
-    
-    /* ----- Mode Toggle Logic ----- */
-    let currentMode = "day"; // Default is Day mode
-    // Initially, Day mode active
-    document.getElementById('tab-day').classList.add('active');
-    document.getElementById('tab-eve').classList.remove('active');
-    
-    document.getElementById('mode-toggle').addEventListener('click', () => {
-      if (currentMode === "day") {
-        // Switch to Eve mode
-        currentMode = "eve";
-        document.getElementById('mode-toggle').textContent = "🌜";
-        document.getElementById('tab-day').classList.remove('active');
-        document.getElementById('tab-eve').classList.add('active');
-      } else {
-        // Switch to Day mode
-        currentMode = "day";
-        document.getElementById('mode-toggle').textContent = "🌞";
-        document.getElementById('tab-eve').classList.remove('active');
-        document.getElementById('tab-day').classList.add('active');
-      }
-    });
     
     /* ----- Manual Refresh Button ----- */
     document.getElementById('refresh-button').addEventListener('click', refreshAll);
