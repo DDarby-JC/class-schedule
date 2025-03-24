@@ -33,6 +33,7 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       border-radius: 8px;
       margin-bottom: 15px;
+      width: 100%;
     }
     #refresh-button {
       background: none;
@@ -54,15 +55,12 @@
     }
     /* ===== Grid Container for Schedules ===== */
     .grid-container {
+      width: 100%;
       display: grid;
-      grid-template-columns: 40% 40% 20%;
+      grid-template-columns: repeat(3, 1fr);
       gap: 15px;
       margin-bottom: 15px;
     }
-    .grid-column {
-      /* Each column takes its defined width */
-    }
-    /* The PN column will stack PN Day and PN Eve vertically */
     .pn-stacked {
       display: flex;
       flex-direction: column;
@@ -124,7 +122,7 @@
     @media only screen and (max-width: 600px) {
       #date-display { font-size: 1.3em; }
       #time-display { font-size: 1em; }
-      .grid-container { grid-template-columns: 1fr; } /* fallback stacking on very small screens */
+      .grid-container { grid-template-columns: 1fr; } /* Fallback stacking */
     }
   </style>
 </head>
@@ -138,7 +136,7 @@
   
   <!-- ===== Main Content: Three Columns Layout ===== -->
   <div class="grid-container">
-    <!-- Column 1: RN Day (40%) -->
+    <!-- Column 1: RN Day (33.33%) -->
     <div class="grid-column" id="column-rn-day">
       <table id="rn-day">
         <caption>RN Day</caption>
@@ -153,8 +151,7 @@
         </tbody>
       </table>
     </div>
-    
-    <!-- Column 2: RN Eve (40%) -->
+    <!-- Column 2: RN Eve (33.33%) -->
     <div class="grid-column" id="column-rn-eve">
       <table id="rn-eve">
         <caption>RN Eve</caption>
@@ -169,8 +166,7 @@
         </tbody>
       </table>
     </div>
-    
-    <!-- Column 3: PN Column (20%) with stacked PN Day & PN Eve -->
+    <!-- Column 3: PN Column (33.33%) with vertical stacking -->
     <div class="grid-column" id="column-pn">
       <div class="pn-stacked">
         <table id="pn-day">
@@ -220,7 +216,7 @@
     updateTime();
     setInterval(updateTime, 1000);
     
-    // CSV URLs (update with your published URLs)
+    // CSV URLs for schedules (update with your published URLs)
     const urls = {
       "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
       "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
@@ -228,7 +224,7 @@
       "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv"
     };
     
-    // Helper function to update a table with CSV data
+    // Helper: Update table with CSV data
     function updateTable(tableElement, data) {
       const tbody = tableElement.querySelector('tbody');
       tbody.innerHTML = "";
@@ -244,7 +240,7 @@
       });
     }
     
-    // Load main schedules for all tables
+    // Load main schedules
     function loadMainSchedules() {
       Papa.parse(urls["rn-day"], {
         download: true,
@@ -276,7 +272,6 @@
       });
     }
     
-    /* ----- Refresh All Data ----- */
     function refreshAll() {
       updateDate();
       updateTime();
@@ -285,7 +280,6 @@
     refreshAll();
     setInterval(refreshAll, 60000);
     
-    /* ----- Manual Refresh Button ----- */
     document.getElementById('refresh-button').addEventListener('click', refreshAll);
   </script>
 </body>
