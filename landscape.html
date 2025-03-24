@@ -52,22 +52,27 @@
       font-size: 1.2em;
       text-align: right;
     }
-    /* ===== Section Headings ===== */
-    h2 {
-      margin: 10px 0;
-      text-align: center;
-      font-size: 1.5em;
-    }
     /* ===== Grid Container for Schedules ===== */
     .grid-container {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 40% 40% 20%;
       gap: 15px;
       margin-bottom: 15px;
     }
+    .grid-column {
+      /* Each column takes its defined width */
+    }
+    /* The PN column will stack PN Day and PN Eve vertically */
+    .pn-stacked {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    /* ===== Table Styles (common for all schedules) ===== */
     table {
       width: 100%;
       border-collapse: collapse;
+      background: #fff;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       border-radius: 8px;
       overflow: hidden;
@@ -79,31 +84,17 @@
       padding: 8px;
       font-weight: bold;
     }
-    /* ----- Day Schedule Styling (Light Mode) ----- */
-    #day-schedule table {
-      background: #fff;
-      color: #333;
-    }
-    #rn-day caption {
+    /* RN table headers: maroon */
+    #rn-day caption,
+    #rn-eve caption {
       background: #800000;
       color: #fff;
     }
-    #pn-day caption {
+    /* PN table headers: gold */
+    #pn-day caption,
+    #pn-eve caption {
       background: #FFD700;
       color: #333;
-    }
-    /* ----- Evening Schedule Styling (Darker) ----- */
-    #evening-schedule table {
-      background: #333;
-      color: #fff;
-    }
-    #rn-eve caption {
-      background: #600000;
-      color: #fff;
-    }
-    #pn-eve caption {
-      background: #cc9900;
-      color: #fff;
     }
     th, td {
       padding: 10px 8px;
@@ -113,19 +104,12 @@
       white-space: nowrap;
       text-overflow: ellipsis;
     }
-    /* For evening mode, change border color */
-    #evening-schedule th, #evening-schedule td {
-      border-bottom: 1px solid #555;
-    }
     th {
       background: #f9f9f9;
       font-weight: 600;
     }
     tr:hover {
       background: #f1f1f1;
-    }
-    #evening-schedule tr:hover {
-      background: #444;
     }
     /* Fixed column widths: 70% for Class, 30% for Room */
     table th:first-child,
@@ -140,22 +124,22 @@
     @media only screen and (max-width: 600px) {
       #date-display { font-size: 1.3em; }
       #time-display { font-size: 1em; }
-      h2 { font-size: 1.3em; }
+      .grid-container { grid-template-columns: 1fr; } /* fallback stacking on very small screens */
     }
   </style>
 </head>
 <body>
-  <!-- ===== Header ===== -->
+  <!-- ===== Header: Refresh, Date, Time ===== -->
   <header>
     <button id="refresh-button" title="Refresh">&#x21bb;</button>
     <div id="date-display"></div>
     <div id="time-display"></div>
   </header>
   
-  <!-- ===== Day Schedule Section ===== -->
-  <section id="day-schedule">
-    <h2>Day Schedule</h2>
-    <div class="grid-container">
+  <!-- ===== Main Content: Three Columns Layout ===== -->
+  <div class="grid-container">
+    <!-- Column 1: RN Day (40%) -->
+    <div class="grid-column" id="column-rn-day">
       <table id="rn-day">
         <caption>RN Day</caption>
         <thead>
@@ -168,25 +152,10 @@
           <!-- RN Day data injected here -->
         </tbody>
       </table>
-      <table id="pn-day">
-        <caption>PN Day</caption>
-        <thead>
-          <tr>
-            <th>Class</th>
-            <th>Room #</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- PN Day data injected here -->
-        </tbody>
-      </table>
     </div>
-  </section>
-  
-  <!-- ===== Evening Schedule Section ===== -->
-  <section id="evening-schedule">
-    <h2>Evening Schedule</h2>
-    <div class="grid-container">
+    
+    <!-- Column 2: RN Eve (40%) -->
+    <div class="grid-column" id="column-rn-eve">
       <table id="rn-eve">
         <caption>RN Eve</caption>
         <thead>
@@ -199,25 +168,43 @@
           <!-- RN Eve data injected here -->
         </tbody>
       </table>
-      <table id="pn-eve">
-        <caption>PN Eve</caption>
-        <thead>
-          <tr>
-            <th>Class</th>
-            <th>Room #</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- PN Eve data injected here -->
-        </tbody>
-      </table>
     </div>
-  </section>
+    
+    <!-- Column 3: PN Column (20%) with stacked PN Day & PN Eve -->
+    <div class="grid-column" id="column-pn">
+      <div class="pn-stacked">
+        <table id="pn-day">
+          <caption>PN Day</caption>
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Room #</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- PN Day data injected here -->
+          </tbody>
+        </table>
+        <table id="pn-eve">
+          <caption>PN Eve</caption>
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Room #</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- PN Eve data injected here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
   
   <!-- ===== PapaParse Library ===== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
-    // Update Date in Header
+    // Update date display
     function updateDate() {
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -225,7 +212,7 @@
     }
     updateDate();
     
-    // Update Current Time in Header (every second)
+    // Update time display every second
     function updateTime() {
       const now = new Date();
       document.getElementById('time-display').textContent = now.toLocaleTimeString();
@@ -233,15 +220,15 @@
     updateTime();
     setInterval(updateTime, 1000);
     
-    // CSV URLs (update these with your published URLs)
+    // CSV URLs (update with your published URLs)
     const urls = {
       "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
-      "pn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1551044945&single=true&output=csv",
       "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
+      "pn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1551044945&single=true&output=csv",
       "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv"
     };
     
-    // Helper: Update Table with CSV Data
+    // Helper function to update a table with CSV data
     function updateTable(tableElement, data) {
       const tbody = tableElement.querySelector('tbody');
       tbody.innerHTML = "";
@@ -257,7 +244,7 @@
       });
     }
     
-    // Load Main Schedules
+    // Load main schedules for all tables
     function loadMainSchedules() {
       Papa.parse(urls["rn-day"], {
         download: true,
