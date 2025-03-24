@@ -6,63 +6,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Class Schedule Display</title>
   <style>
-  *, *::before, *::after {
-  box-sizing: border-box;
-}
-html, body {
-  margin: 0;
-  padding: 10px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  /* Background is now a gradient from deep red to light gray */
-  background: linear-gradient(135deg, #a50021, #f5f5f5);
-  color: #333;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-html::-webkit-scrollbar, body::-webkit-scrollbar {
-  display: none;
-}
-
-/* ===== Header ===== */
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  /* Use a semi-transparent white so the gradient subtly shows through */
-  background: rgba(255, 255, 255, 0.9);
-  padding: 8px 15px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  border-radius: 8px;
-  margin-bottom: 15px;
-}
-#refresh-button {
-  background: none;
-  border: none;
-  font-size: 1.2em;
-  opacity: 0.7;
-  cursor: pointer;
-  color: inherit;
-}
-#date-display {
-  font-size: 1.5em;
-  font-weight: bold;
-  flex: 1;
-  text-align: center;
-}
-#time-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-#time-display {
-  font-size: 1.2em;
-}
-#mode-toggle {
-  background: none;
-  border: none;
-  font-size: 1.5em;
-  cursor: pointer;
-}
+/* Global reset & base styles */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      padding: 10px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      /* Hide vertical scrollbar */
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    html::-webkit-scrollbar, body::-webkit-scrollbar {
+      display: none;
+    }
+    /* ===== Header ===== */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      padding: 8px 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    #refresh-button {
+      background: none;
+      border: none;
+      font-size: 1.2em;
+      opacity: 0.7;
+      cursor: pointer;
+      color: inherit;
+    }
+    #date-display {
+      font-size: 1.5em;
+      font-weight: bold;
+      flex: 1;
+      text-align: center;
+    }
+    /* Container for time and mode toggle */
+    #time-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #time-display {
+      font-size: 1.2em;
+    }
+    #mode-toggle {
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      cursor: pointer;
+    }
     /* ===== Tab Content: Only one active at a time ===== */
     .tab-content {
       display: none !important;
