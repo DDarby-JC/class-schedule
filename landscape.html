@@ -53,16 +53,13 @@
       text-align: right;
     }
     /* ===== Grid Container for Schedules ===== */
-  .grid-container {
-  display: grid;
-  grid-template-columns: 33.33% 33.33% 33.33%;
-  gap: 15px;
-  margin-bottom: 15px;
-}
-    .grid-column {
-      /* Each column takes its defined width */
+    .grid-container {
+      display: grid;
+      grid-template-columns: 33.33% 33.33% 33.33%;
+      gap: 15px;
+      margin-bottom: 15px;
     }
-    /* The PN column will stack PN Day and PN Eve vertically */
+    /* Column 3 (PN Column) will stack PN Day and PN Eve vertically */
     .pn-stacked {
       display: flex;
       flex-direction: column;
@@ -138,7 +135,7 @@
   
   <!-- ===== Main Content: Three Columns Layout ===== -->
   <div class="grid-container">
-    <!-- Column 1: RN Day (40%) -->
+    <!-- Column 1: RN Day -->
     <div class="grid-column" id="column-rn-day">
       <table id="rn-day">
         <caption>RN Day</caption>
@@ -154,7 +151,7 @@
       </table>
     </div>
     
-    <!-- Column 2: RN Eve (40%) -->
+    <!-- Column 2: RN Eve -->
     <div class="grid-column" id="column-rn-eve">
       <table id="rn-eve">
         <caption>RN Eve</caption>
@@ -170,7 +167,7 @@
       </table>
     </div>
     
-    <!-- Column 3: PN Column (20%) with stacked PN Day & PN Eve -->
+    <!-- Column 3: PN Column (Stacked) -->
     <div class="grid-column" id="column-pn">
       <div class="pn-stacked">
         <table id="pn-day">
@@ -179,114 +176,3 @@
             <tr>
               <th>Class</th>
               <th>Room #</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- PN Day data injected here -->
-          </tbody>
-        </table>
-        <table id="pn-eve">
-          <caption>PN Eve</caption>
-          <thead>
-            <tr>
-              <th>Class</th>
-              <th>Room #</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- PN Eve data injected here -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  
-  <!-- ===== PapaParse Library ===== -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <script>
-    // Update date display
-    function updateDate() {
-      const now = new Date();
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      document.getElementById('date-display').textContent = now.toLocaleDateString(undefined, options);
-    }
-    updateDate();
-    
-    // Update time display every second
-    function updateTime() {
-      const now = new Date();
-      document.getElementById('time-display').textContent = now.toLocaleTimeString();
-    }
-    updateTime();
-    setInterval(updateTime, 1000);
-    
-    // CSV URLs (update with your published URLs)
-    const urls = {
-      "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
-      "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
-      "pn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1551044945&single=true&output=csv",
-      "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv"
-    };
-    
-    // Helper function to update a table with CSV data
-    function updateTable(tableElement, data) {
-      const tbody = tableElement.querySelector('tbody');
-      tbody.innerHTML = "";
-      data.forEach(row => {
-        const tr = document.createElement('tr');
-        const tdClass = document.createElement('td');
-        tdClass.textContent = row.Class || row.class || "";
-        const tdRoom = document.createElement('td');
-        tdRoom.textContent = row.Room || row.room || "";
-        tr.appendChild(tdClass);
-        tr.appendChild(tdRoom);
-        tbody.appendChild(tr);
-      });
-    }
-    
-    // Load main schedules for all tables
-    function loadMainSchedules() {
-      Papa.parse(urls["rn-day"], {
-        download: true,
-        header: true,
-        complete: function(results) {
-          updateTable(document.getElementById("rn-day"), results.data);
-        }
-      });
-      Papa.parse(urls["pn-day"], {
-        download: true,
-        header: true,
-        complete: function(results) {
-          updateTable(document.getElementById("pn-day"), results.data);
-        }
-      });
-      Papa.parse(urls["rn-eve"], {
-        download: true,
-        header: true,
-        complete: function(results) {
-          updateTable(document.getElementById("rn-eve"), results.data);
-        }
-      });
-      Papa.parse(urls["pn-eve"], {
-        download: true,
-        header: true,
-        complete: function(results) {
-          updateTable(document.getElementById("pn-eve"), results.data);
-        }
-      });
-    }
-    
-    /* ----- Refresh All Data ----- */
-    function refreshAll() {
-      updateDate();
-      updateTime();
-      loadMainSchedules();
-    }
-    refreshAll();
-    setInterval(refreshAll, 60000);
-    
-    /* ----- Manual Refresh Button ----- */
-    document.getElementById('refresh-button').addEventListener('click', refreshAll);
-  </script>
-</body>
-</html>
