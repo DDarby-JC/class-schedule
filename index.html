@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- Ensure proper scaling in portrait mode -->
+  <!-- Ensure proper scaling in landscape mode -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Class Schedule Display</title>
+  <title>Class Schedule Display - Landscape</title>
   <style>
     /* Global reset & base styles */
     *, *::before, *::after {
@@ -37,44 +37,32 @@
     #refresh-button {
       background: none;
       border: none;
-      font-size: 1.5em; /* increased for easier press/read */
+      font-size: 1.5em;
       opacity: 0.8;
       cursor: pointer;
       color: inherit;
     }
     #date-display {
-      font-size: 1.8em; /* increased */
+      font-size: 1.8em;
       font-weight: bold;
       flex: 1;
       text-align: center;
     }
-    /* Container for time and mode toggle */
-    #time-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
     #time-display {
-      font-size: 1.5em; /* increased */
+      font-size: 1.5em;
+      text-align: right;
     }
-    #mode-toggle {
-      background: none;
-      border: none;
-      font-size: 1.8em; /* increased */
-      cursor: pointer;
-    }
-    /* ===== Main Content: Three Columns Layout ===== */
+    /* ===== Grid Container for Schedules ===== */
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(3, 1fr); /* 33.33% each */
+      grid-template-columns: 1fr 1fr;
       gap: 15px;
       margin-bottom: 15px;
       width: 100%;
     }
-    .pn-stacked {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
+    /* Ensure each table has a minimum height for alignment */
+    table {
+      min-height: 200px;
     }
     /* ===== Table Styles ===== */
     table {
@@ -85,27 +73,27 @@
       border-radius: 8px;
       overflow: hidden;
       table-layout: fixed;
-      font-size: 1.3em; /* increased font size for readability */
+      font-size: 1.3em; /* Increased for readability */
     }
     caption {
-      font-size: 1.3em; /* increased */
+      font-size: 1.3em;
       padding: 8px;
       font-weight: bold;
     }
-    /* RN table header: maroon */
+    /* RN table headers: maroon */
     #rn-day caption,
     #rn-eve caption {
       background: #800000;
       color: #fff;
     }
-    /* PN table header: gold */
+    /* PN table headers: gold */
     #pn-day caption,
     #pn-eve caption {
       background: #FFD700;
       color: #333;
     }
     th, td {
-      padding: 8px 6px; /* slightly reduced padding */
+      padding: 8px 6px; /* Slightly reduced padding for a tighter layout */
       text-align: left;
       border-bottom: 1px solid #ddd;
       overflow: hidden;
@@ -119,6 +107,7 @@
     tr:hover {
       background: #f1f1f1;
     }
+    /* Fixed column widths: 70% for Class, 30% for Room */
     table th:first-child,
     table td:first-child {
       width: 70%;
@@ -140,37 +129,30 @@
       border: 1px solid #ddd;
       padding: 6px;
       text-align: center;
-      /* Equal width for all rooms: 7 columns per row */
+      /* Use fixed 7 columns */
       width: calc(100% / 7);
-      font-size: 1.2em; /* increased for readability */
+      font-size: 0.8em; /* Smaller font size */
     }
-    /* ===== Remove Preview Area ===== */
-    /* Preview area removed entirely */
-    
     /* ===== Responsive Adjustments ===== */
     @media only screen and (max-width: 600px) {
-      #date-display { font-size: 1.3em; }
-      #time-display { font-size: 1em; }
-      #mode-toggle { font-size: 1.3em; }
-      .grid-container { grid-template-columns: 1fr; } /* fallback stacking */
+      #date-display { font-size: 1.5em; }
+      #time-display { font-size: 1.3em; }
+      .grid-container { grid-template-columns: 1fr; } /* fallback stacking on very small screens */
     }
   </style>
 </head>
 <body>
-  <!-- ===== Header: Refresh, Date, Time & Mode Toggle ===== -->
+  <!-- ===== Header: Refresh, Date, Time ===== -->
   <header>
     <button id="refresh-button" title="Refresh">&#x21bb;</button>
     <div id="date-display"></div>
-    <div id="time-container">
-      <span id="time-display"></span>
-      <button id="mode-toggle" title="Toggle Mode">🌞</button>
-    </div>
+    <div id="time-display"></div>
   </header>
   
-  <!-- ===== Main Content: Three Equal Columns ===== -->
+  <!-- ===== Main Content: 2×2 Grid for Schedules ===== -->
   <div class="grid-container">
-    <!-- Column 1: RN Day -->
-    <div class="grid-column" id="column-rn-day">
+    <!-- Top Row: Day Schedules -->
+    <div class="grid-column">
       <table id="rn-day">
         <caption>RN Day</caption>
         <thead>
@@ -184,9 +166,22 @@
         </tbody>
       </table>
     </div>
-    
-    <!-- Column 2: RN Eve -->
-    <div class="grid-column" id="column-rn-eve">
+    <div class="grid-column">
+      <table id="pn-day">
+        <caption>PN Day</caption>
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th>Room #</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- PN Day data injected here -->
+        </tbody>
+      </table>
+    </div>
+    <!-- Bottom Row: Evening Schedules -->
+    <div class="grid-column">
       <table id="rn-eve">
         <caption>RN Eve</caption>
         <thead>
@@ -200,35 +195,19 @@
         </tbody>
       </table>
     </div>
-    
-    <!-- Column 3: PN Column (Stacked: PN Day on top, PN Eve below) -->
-    <div class="grid-column" id="column-pn">
-      <div class="pn-stacked">
-        <table id="pn-day">
-          <caption>PN Day</caption>
-          <thead>
-            <tr>
-              <th>Class</th>
-              <th>Room #</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- PN Day data injected here -->
-          </tbody>
-        </table>
-        <table id="pn-eve">
-          <caption>PN Eve</caption>
-          <thead>
-            <tr>
-              <th>Class</th>
-              <th>Room #</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- PN Eve data injected here -->
-          </tbody>
-        </table>
-      </div>
+    <div class="grid-column">
+      <table id="pn-eve">
+        <caption>PN Eve</caption>
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th>Room #</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- PN Eve data injected here -->
+        </tbody>
+      </table>
     </div>
   </div>
   
@@ -240,7 +219,7 @@
   <!-- ===== PapaParse Library ===== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
-    /* ----- Header Data ----- */
+    // Update date display in header
     function updateDate() {
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -248,7 +227,7 @@
     }
     updateDate();
     
-    // Update current time in header (every second)
+    // Update time display in header (every second)
     function updateTime() {
       const now = new Date();
       document.getElementById('time-display').textContent = now.toLocaleTimeString();
@@ -256,7 +235,7 @@
     updateTime();
     setInterval(updateTime, 1000);
     
-    /* ----- CSV URLs ----- */
+    // CSV URLs for schedules – update with your published URLs
     const urls = {
       "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
       "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
@@ -264,7 +243,7 @@
       "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv"
     };
     
-    /* ----- Helper: Update a Table with CSV Data ----- */
+    // Helper: Update a table with CSV data
     function updateTable(tableElement, data) {
       const tbody = tableElement.querySelector('tbody');
       tbody.innerHTML = "";
@@ -280,7 +259,7 @@
       });
     }
     
-    /* ----- Load Main Schedules ----- */
+    // Load Main Schedules for all tables
     function loadMainSchedules() {
       Papa.parse(urls["rn-day"], {
         download: true,
@@ -312,13 +291,9 @@
       });
     }
     
-    /* ----- Update Room Availability Grid ----- */
+    // Update Room Availability Grid
     function updateRoomGrid() {
-      // Determine active mode: Day or Eve
-      // Since both schedules are always visible on the landscape page,
-      // we can choose to check both RN and PN day and eve data.
-      // Alternatively, you could choose one set if that's preferred.
-      // Here we'll combine both (assuming they don't conflict).
+      // Combine all four schedules to determine used rooms
       let usedRooms = new Set();
       ["rn-day", "pn-day", "rn-eve", "pn-eve"].forEach(id => {
         const tbody = document.querySelector('#' + id + ' tbody');
@@ -336,7 +311,7 @@
         }
       });
       
-      // Define all rooms as provided
+      // Define all rooms (4 rows, 7 columns)
       const allRooms = [
         ["101", "102", "103", "104", "105"],
         ["201", "202", "203", "204", "205"],
@@ -344,7 +319,6 @@
         ["Skills Lab", "Trauma Bay", "Med Office", "Peds", "Ob Noel", "Simman", "ALF"]
       ];
       
-      // Use fixed maximum of 7 columns per row
       const maxCols = 7;
       let html = '<table>';
       allRooms.forEach(row => {
@@ -363,7 +337,7 @@
       document.getElementById('room-grid').innerHTML = html;
     }
     
-    /* ----- Refresh All Data ----- */
+    // Refresh All Data
     function refreshAll() {
       updateDate();
       updateTime();
@@ -373,7 +347,7 @@
     refreshAll();
     setInterval(refreshAll, 60000);
     
-    /* ----- Manual Refresh Button ----- */
+    // Manual Refresh Button
     document.getElementById('refresh-button').addEventListener('click', refreshAll);
   </script>
 </body>
