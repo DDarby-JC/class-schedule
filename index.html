@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Class Schedule Display</title>
   <style>
-/* Global reset & base styles */
+    /* Global reset & base styles */
     *, *::before, *::after {
       box-sizing: border-box;
     }
@@ -37,13 +37,13 @@
     #refresh-button {
       background: none;
       border: none;
-      font-size: 1.2em;
-      opacity: 0.7;
+      font-size: 1.5em; /* increased for easier press/read */
+      opacity: 0.8;
       cursor: pointer;
       color: inherit;
     }
     #date-display {
-      font-size: 1.5em;
+      font-size: 1.8em; /* increased */
       font-weight: bold;
       flex: 1;
       text-align: center;
@@ -55,27 +55,28 @@
       gap: 10px;
     }
     #time-display {
-      font-size: 1.2em;
+      font-size: 1.5em; /* increased */
     }
     #mode-toggle {
       background: none;
       border: none;
-      font-size: 1.5em;
+      font-size: 1.8em; /* increased */
       cursor: pointer;
     }
-    /* ===== Tab Content: Only one active at a time ===== */
-    .tab-content {
-      display: none !important;
+    /* ===== Main Content: Three Columns Layout ===== */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* 33.33% each */
+      gap: 15px;
+      margin-bottom: 15px;
+      width: 100%;
     }
-    .tab-content.active {
-      display: block !important;
-    }
-    .stacked-container {
+    .pn-stacked {
       display: flex;
       flex-direction: column;
       gap: 15px;
-      margin-bottom: 15px;
     }
+    /* ===== Table Styles ===== */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -84,10 +85,10 @@
       border-radius: 8px;
       overflow: hidden;
       table-layout: fixed;
-      font-size: 1em;
+      font-size: 1.3em; /* increased font size for readability */
     }
     caption {
-      font-size: 1.2em;
+      font-size: 1.3em; /* increased */
       padding: 8px;
       font-weight: bold;
     }
@@ -104,7 +105,7 @@
       color: #333;
     }
     th, td {
-      padding: 10px 8px;
+      padding: 8px 6px; /* slightly reduced padding */
       text-align: left;
       border-bottom: 1px solid #ddd;
       overflow: hidden;
@@ -118,7 +119,6 @@
     tr:hover {
       background: #f1f1f1;
     }
-    /* Fixed column widths: 70% for Class, 30% for Room */
     table th:first-child,
     table td:first-child {
       width: 70%;
@@ -142,63 +142,17 @@
       text-align: center;
       /* Equal width for all rooms: 7 columns per row */
       width: calc(100% / 7);
+      font-size: 1.2em; /* increased for readability */
     }
-    /* ===== Preview Area (2×1 grid) ===== */
-    #preview-area {
-      margin-bottom: 15px;
-    }
-    .preview-content {
-      background: #fff;
-      border: 1px solid #ddd;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      padding: 8px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      font-size: 0.9em;
-    }
-    .preview-header {
-      font-size: 1em;
-      font-weight: bold;
-      margin-bottom: 5px;
-      text-align: center;
-    }
-    .preview-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .preview-table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-      font-size: 0.9em;
-    }
-    .preview-table caption {
-      font-size: 0.9em;
-      padding: 4px;
-      font-weight: bold;
-    }
-    .preview-table th, .preview-table td {
-      padding: 6px 4px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-    .preview-table th:first-child,
-    .preview-table td:first-child {
-      width: 70%;
-    }
-    .preview-table th:last-child,
-    .preview-table td:last-child {
-      width: 30%;
-    }
+    /* ===== Remove Preview Area ===== */
+    /* Preview area removed entirely */
+    
     /* ===== Responsive Adjustments ===== */
     @media only screen and (max-width: 600px) {
       #date-display { font-size: 1.3em; }
       #time-display { font-size: 1em; }
       #mode-toggle { font-size: 1.3em; }
+      .grid-container { grid-template-columns: 1fr; } /* fallback stacking */
     }
   </style>
 </head>
@@ -213,10 +167,10 @@
     </div>
   </header>
   
-  <!-- ===== Main Content: Day and Eve Schedules (Only one visible) ===== -->
-  <!-- Day Mode -->
-  <div id="tab-day" class="tab-content active">
-    <div class="stacked-container">
+  <!-- ===== Main Content: Three Equal Columns ===== -->
+  <div class="grid-container">
+    <!-- Column 1: RN Day -->
+    <div class="grid-column" id="column-rn-day">
       <table id="rn-day">
         <caption>RN Day</caption>
         <thead>
@@ -229,24 +183,10 @@
           <!-- RN Day data injected here -->
         </tbody>
       </table>
-      <table id="pn-day">
-        <caption>PN Day</caption>
-        <thead>
-          <tr>
-            <th>Class</th>
-            <th>Room #</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- PN Day data injected here -->
-        </tbody>
-      </table>
     </div>
-  </div>
-  
-  <!-- Eve Mode -->
-  <div id="tab-eve" class="tab-content">
-    <div class="stacked-container">
+    
+    <!-- Column 2: RN Eve -->
+    <div class="grid-column" id="column-rn-eve">
       <table id="rn-eve">
         <caption>RN Eve</caption>
         <thead>
@@ -259,75 +199,12 @@
           <!-- RN Eve data injected here -->
         </tbody>
       </table>
-      <table id="pn-eve">
-        <caption>PN Eve</caption>
-        <thead>
-          <tr>
-            <th>Class</th>
-            <th>Room #</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- PN Eve data injected here -->
-        </tbody>
-      </table>
     </div>
-  </div>
-  
-  <!-- ===== Room Availability Grid ===== -->
-  <div id="room-grid">
-    <!-- Room grid table will be injected here -->
-  </div>
-  
-  <!-- ===== Preview Area (2×1 grid) ===== -->
-  <div id="preview-area">
-    <!-- When in Day mode, preview the Eve schedule -->
-    <div id="preview-eve" class="preview-content" style="display:none;">
-      <div class="preview-header">🌜 Eve (Preview)</div>
-      <div class="preview-grid">
-        <table id="preview-rn-eve" class="preview-table">
-          <caption>RN Eve</caption>
-          <thead>
-            <tr>
-              <th>Class</th>
-              <th>Room #</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Preview RN Eve data -->
-          </tbody>
-        </table>
-        <table id="preview-pn-eve" class="preview-table">
-          <caption>PN Eve</caption>
-          <thead>
-            <tr>
-              <th>Class</th>
-              <th>Room #</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Preview PN Eve data -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <!-- When in Eve mode, preview the Day schedule -->
-    <div id="preview-day" class="preview-content" style="display:none;">
-      <div class="preview-header">🌞 Day (Preview)</div>
-      <div class="preview-grid">
-        <table id="preview-rn-day" class="preview-table">
-          <caption>RN Day</caption>
-          <thead>
-            <tr>
-              <th>Class</th>
-              <th>Room #</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Preview RN Day data -->
-          </tbody>
-        </table>
-        <table id="preview-pn-day" class="preview-table">
+    
+    <!-- Column 3: PN Column (Stacked: PN Day on top, PN Eve below) -->
+    <div class="grid-column" id="column-pn">
+      <div class="pn-stacked">
+        <table id="pn-day">
           <caption>PN Day</caption>
           <thead>
             <tr>
@@ -336,11 +213,28 @@
             </tr>
           </thead>
           <tbody>
-            <!-- Preview PN Day data -->
+            <!-- PN Day data injected here -->
+          </tbody>
+        </table>
+        <table id="pn-eve">
+          <caption>PN Eve</caption>
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Room #</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- PN Eve data injected here -->
           </tbody>
         </table>
       </div>
     </div>
+  </div>
+  
+  <!-- ===== Room Availability Grid ===== -->
+  <div id="room-grid">
+    <!-- Room grid table will be injected here -->
   </div>
   
   <!-- ===== PapaParse Library ===== -->
@@ -367,8 +261,7 @@
       "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
       "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
       "pn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1551044945&single=true&output=csv",
-      "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv",
-      "messages": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1334066845&single=true&output=csv"
+      "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv"
     };
     
     /* ----- Helper: Update a Table with CSV Data ----- */
@@ -419,52 +312,15 @@
       });
     }
     
-    /* ----- Load Preview Schedules ----- */
-    function loadPreviewSchedules() {
-      // For Day mode, preview the Eve schedule:
-      Papa.parse(urls["rn-eve"], {
-        download: true,
-        header: true,
-        complete: function(results) {
-          updateTable(document.getElementById("preview-rn-eve"), results.data);
-        }
-      });
-      Papa.parse(urls["pn-eve"], {
-        download: true,
-        header: true,
-        complete: function(results) {
-          updateTable(document.getElementById("preview-pn-eve"), results.data);
-        }
-      });
-      // For Eve mode, preview the Day schedule:
-      Papa.parse(urls["rn-day"], {
-        download: true,
-        header: true,
-        complete: function(results) {
-          updateTable(document.getElementById("preview-rn-day"), results.data);
-        }
-      });
-      Papa.parse(urls["pn-day"], {
-        download: true,
-        header: true,
-        complete: function(results) {
-          updateTable(document.getElementById("preview-pn-day"), results.data);
-        }
-      });
-    }
-    
     /* ----- Update Room Availability Grid ----- */
     function updateRoomGrid() {
       // Determine active mode: Day or Eve
-      const activeTab = document.querySelector('.tab-content.active') ? document.querySelector('.tab-content.active').id : "tab-day";
-      let tableIds;
-      if (activeTab === 'tab-day') {
-        tableIds = ["rn-day", "pn-day"];
-      } else {
-        tableIds = ["rn-eve", "pn-eve"];
-      }
+      // Since both schedules are always visible on the landscape page,
+      // we can choose to check both RN and PN day and eve data.
+      // Alternatively, you could choose one set if that's preferred.
+      // Here we'll combine both (assuming they don't conflict).
       let usedRooms = new Set();
-      tableIds.forEach(id => {
+      ["rn-day", "pn-day", "rn-eve", "pn-eve"].forEach(id => {
         const tbody = document.querySelector('#' + id + ' tbody');
         if (tbody) {
           const rows = tbody.querySelectorAll('tr');
@@ -497,7 +353,7 @@
           const room = row[i] || "";
           const isUsed = room && usedRooms.has(room.toLowerCase());
           const bgColor = room
-            ? (isUsed ? '#ffcccc' : '#ccffcc')
+            ? (isUsed ? '#ff6666' : '#66cc66')
             : '#f5f5f5';
           html += `<td style="background:${bgColor};">${room}</td>`;
         }
@@ -512,40 +368,10 @@
       updateDate();
       updateTime();
       loadMainSchedules();
-      loadPreviewSchedules();
       setTimeout(updateRoomGrid, 1000);
     }
     refreshAll();
     setInterval(refreshAll, 60000);
-    
-    /* ----- Mode Toggle Logic ----- */
-    let currentMode = "day"; // Default is Day mode
-    // Initially, Day mode active; preview of opposite (Eve) is shown
-    document.getElementById('tab-day').classList.add('active');
-    document.getElementById('tab-eve').classList.remove('active');
-    document.getElementById("preview-eve").style.display = "block";
-    document.getElementById("preview-day").style.display = "none";
-    
-    document.getElementById('mode-toggle').addEventListener('click', () => {
-      if (currentMode === "day") {
-        // Switch to Eve mode
-        currentMode = "eve";
-        document.getElementById('mode-toggle').textContent = "🌜";
-        document.getElementById('tab-day').classList.remove('active');
-        document.getElementById('tab-eve').classList.add('active');
-        document.getElementById("preview-day").style.display = "block";
-        document.getElementById("preview-eve").style.display = "none";
-      } else {
-        // Switch to Day mode
-        currentMode = "day";
-        document.getElementById('mode-toggle').textContent = "🌞";
-        document.getElementById('tab-eve').classList.remove('active');
-        document.getElementById('tab-day').classList.add('active');
-        document.getElementById("preview-eve").style.display = "block";
-        document.getElementById("preview-day").style.display = "none";
-      }
-      setTimeout(updateRoomGrid, 500);
-    });
     
     /* ----- Manual Refresh Button ----- */
     document.getElementById('refresh-button').addEventListener('click', refreshAll);
