@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- Ensure proper scaling in landscape mode -->
+  <!-- Ensure proper scaling for landscape mode -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Class Schedule Display - Landscape</title>
   <style>
@@ -16,12 +16,11 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #f5f5f5;
       color: #333;
-      /* Hide vertical scrollbar */
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+      -ms-overflow-style: none; /* Hide scrollbar in IE, Edge */
+      scrollbar-width: none; /* Hide scrollbar in Firefox */
     }
     html::-webkit-scrollbar, body::-webkit-scrollbar {
-      display: none;
+      display: none; /* Hide scrollbar in Chrome, Safari, Opera */
     }
     /* ===== Header ===== */
     header {
@@ -30,9 +29,10 @@
       justify-content: space-between;
       background: #fff;
       padding: 8px 15px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       border-radius: 8px;
       margin-bottom: 15px;
+      width: 100%;
     }
     #refresh-button {
       background: none;
@@ -52,28 +52,29 @@
       font-size: 1.5em;
       text-align: right;
     }
-    /* ===== Grid Container for Schedules ===== */
+    /* ===== Main 2x2 Grid for Schedules ===== */
     .grid-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
       gap: 15px;
       margin-bottom: 15px;
       width: 100%;
     }
-    /* Ensure each table has a minimum height for alignment */
-    table {
-      min-height: 200px;
+    .grid-item {
+      /* Each grid item will contain one table */
     }
-    /* ===== Table Styles ===== */
+    /* ===== Table Styles (common for all schedules) ===== */
     table {
       width: 100%;
       border-collapse: collapse;
       background: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       border-radius: 8px;
       overflow: hidden;
       table-layout: fixed;
-      font-size: 1.3em; /* Increased for readability */
+      font-size: 1.3em; /* Larger font for readability */
+      min-height: 200px; /* Ensures tables are roughly the same height */
     }
     caption {
       font-size: 1.3em;
@@ -93,7 +94,7 @@
       color: #333;
     }
     th, td {
-      padding: 8px 6px; /* Slightly reduced padding for a tighter layout */
+      padding: 8px 6px; /* Reduced padding for a tighter look */
       text-align: left;
       border-bottom: 1px solid #ddd;
       overflow: hidden;
@@ -129,15 +130,14 @@
       border: 1px solid #ddd;
       padding: 6px;
       text-align: center;
-      /* Use fixed 7 columns */
-      width: calc(100% / 7);
-      font-size: 0.8em; /* Smaller font size */
+      width: calc(100% / 7); /* Fixed 7 columns */
+      font-size: 0.8em; /* Smaller font for room grid */
     }
     /* ===== Responsive Adjustments ===== */
     @media only screen and (max-width: 600px) {
       #date-display { font-size: 1.5em; }
       #time-display { font-size: 1.3em; }
-      .grid-container { grid-template-columns: 1fr; } /* fallback stacking on very small screens */
+      .grid-container { grid-template-columns: 1fr; } /* fallback stacking */
     }
   </style>
 </head>
@@ -149,10 +149,10 @@
     <div id="time-display"></div>
   </header>
   
-  <!-- ===== Main Content: 2×2 Grid for Schedules ===== -->
+  <!-- ===== Main 2×2 Grid for Schedules ===== -->
   <div class="grid-container">
-    <!-- Top Row: Day Schedules -->
-    <div class="grid-column">
+    <!-- Top Left: RN Day -->
+    <div class="grid-item">
       <table id="rn-day">
         <caption>RN Day</caption>
         <thead>
@@ -166,22 +166,8 @@
         </tbody>
       </table>
     </div>
-    <div class="grid-column">
-      <table id="pn-day">
-        <caption>PN Day</caption>
-        <thead>
-          <tr>
-            <th>Class</th>
-            <th>Room #</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- PN Day data injected here -->
-        </tbody>
-      </table>
-    </div>
-    <!-- Bottom Row: Evening Schedules -->
-    <div class="grid-column">
+    <!-- Top Right: RN Eve -->
+    <div class="grid-item">
       <table id="rn-eve">
         <caption>RN Eve</caption>
         <thead>
@@ -195,7 +181,23 @@
         </tbody>
       </table>
     </div>
-    <div class="grid-column">
+    <!-- Bottom Left: PN Day -->
+    <div class="grid-item">
+      <table id="pn-day">
+        <caption>PN Day</caption>
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th>Room #</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- PN Day data injected here -->
+        </tbody>
+      </table>
+    </div>
+    <!-- Bottom Right: PN Eve -->
+    <div class="grid-item">
       <table id="pn-eve">
         <caption>PN Eve</caption>
         <thead>
@@ -219,7 +221,7 @@
   <!-- ===== PapaParse Library ===== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
-    // Update date display in header
+    // Update date display
     function updateDate() {
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -227,7 +229,7 @@
     }
     updateDate();
     
-    // Update time display in header (every second)
+    // Update time display every second
     function updateTime() {
       const now = new Date();
       document.getElementById('time-display').textContent = now.toLocaleTimeString();
@@ -235,7 +237,7 @@
     updateTime();
     setInterval(updateTime, 1000);
     
-    // CSV URLs for schedules – update with your published URLs
+    // CSV URLs for schedules (update with your published URLs)
     const urls = {
       "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
       "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
@@ -243,7 +245,7 @@
       "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv"
     };
     
-    // Helper: Update a table with CSV data
+    // Helper: Update table with CSV data
     function updateTable(tableElement, data) {
       const tbody = tableElement.querySelector('tbody');
       tbody.innerHTML = "";
@@ -259,7 +261,7 @@
       });
     }
     
-    // Load Main Schedules for all tables
+    // Load main schedules
     function loadMainSchedules() {
       Papa.parse(urls["rn-day"], {
         download: true,
@@ -291,9 +293,9 @@
       });
     }
     
-    // Update Room Availability Grid
+    // Update room availability grid
     function updateRoomGrid() {
-      // Combine all four schedules to determine used rooms
+      // Combine data from all four schedules to determine used rooms
       let usedRooms = new Set();
       ["rn-day", "pn-day", "rn-eve", "pn-eve"].forEach(id => {
         const tbody = document.querySelector('#' + id + ' tbody');
@@ -311,7 +313,7 @@
         }
       });
       
-      // Define all rooms (4 rows, 7 columns)
+      // Define all rooms as provided
       const allRooms = [
         ["101", "102", "103", "104", "105"],
         ["201", "202", "203", "204", "205"],
@@ -338,17 +340,3 @@
     }
     
     // Refresh All Data
-    function refreshAll() {
-      updateDate();
-      updateTime();
-      loadMainSchedules();
-      setTimeout(updateRoomGrid, 1000);
-    }
-    refreshAll();
-    setInterval(refreshAll, 60000);
-    
-    // Manual Refresh Button
-    document.getElementById('refresh-button').addEventListener('click', refreshAll);
-  </script>
-</body>
-</html>
