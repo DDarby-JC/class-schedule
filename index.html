@@ -37,13 +37,13 @@
     #refresh-button {
       background: none;
       border: none;
-      font-size: 1.5em;
-      opacity: 0.8;
+      font-size: 1.2em;
+      opacity: 0.7;
       cursor: pointer;
       color: inherit;
     }
     #date-display {
-      font-size: 1.8em;
+      font-size: 1.5em;
       font-weight: bold;
       flex: 1;
       text-align: center;
@@ -55,12 +55,12 @@
       gap: 10px;
     }
     #time-display {
-      font-size: 1.5em;
+      font-size: 1.2em;
     }
     #mode-toggle {
       background: none;
       border: none;
-      font-size: 1.8em;
+      font-size: 1.5em;
       cursor: pointer;
     }
     /* ===== Tab Content: Only one active at a time ===== */
@@ -76,7 +76,6 @@
       gap: 15px;
       margin-bottom: 15px;
     }
-    /* ===== Table Styles ===== */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -85,10 +84,10 @@
       border-radius: 8px;
       overflow: hidden;
       table-layout: fixed;
-      font-size: 1.3em; /* increased for better readability */
+      font-size: 1em;
     }
     caption {
-      font-size: 1.3em; /* increased */
+      font-size: 1.2em;
       padding: 8px;
       font-weight: bold;
     }
@@ -105,13 +104,12 @@
       color: #333;
     }
     th, td {
-      padding: 8px 6px; /* reduced padding */
+      padding: 10px 8px;
       text-align: left;
       border-bottom: 1px solid #ddd;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
-      font-size: 1.1em; /* slightly larger text */
     }
     th {
       background: #f9f9f9;
@@ -146,12 +144,61 @@
       width: calc(100% / 7);
       font-size: 0.8em;
     }
-    /* ===== Preview Area Removed ===== */
-    /* Removed the preview area as requested */
+    /* ===== Preview Area (2×1 grid) ===== */
+    #preview-area {
+      margin-bottom: 15px;
+    }
+    .preview-content {
+      background: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      padding: 8px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 0.9em;
+    }
+    .preview-header {
+      font-size: 1em;
+      font-weight: bold;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .preview-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 0.9em;
+    }
+    .preview-table caption {
+      font-size: 0.9em;
+      padding: 4px;
+      font-weight: bold;
+    }
+    .preview-table th, .preview-table td {
+      padding: 6px 4px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .preview-table th:first-child,
+    .preview-table td:first-child {
+      width: 70%;
+    }
+    .preview-table th:last-child,
+    .preview-table td:last-child {
+      width: 30%;
+    }
     /* ===== Responsive Adjustments ===== */
     @media only screen and (max-width: 600px) {
-      #date-display { font-size: 1.5em; }
-      #time-display { font-size: 1.3em; }
+      #date-display { font-size: 1.3em; }
+      #time-display { font-size: 1em; }
       #mode-toggle { font-size: 1.3em; }
     }
   </style>
@@ -236,7 +283,7 @@
   <!-- ===== PapaParse Library ===== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
-    // Update date display in header
+    // Update date display
     function updateDate() {
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -244,7 +291,7 @@
     }
     updateDate();
     
-    // Update time display in header (every second)
+    // Update time display every second
     function updateTime() {
       const now = new Date();
       document.getElementById('time-display').textContent = now.toLocaleTimeString();
@@ -252,7 +299,7 @@
     updateTime();
     setInterval(updateTime, 1000);
     
-    // CSV URLs for schedules – update with your published URLs
+    // CSV URLs for schedules
     const urls = {
       "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
       "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
@@ -308,9 +355,8 @@
       });
     }
     
-    // Update room availability grid
+    // Update Room Availability Grid
     function updateRoomGrid() {
-      // Combine data from all schedules to determine used rooms
       let usedRooms = new Set();
       ["rn-day", "pn-day", "rn-eve", "pn-eve"].forEach(id => {
         const tbody = document.querySelector('#' + id + ' tbody');
@@ -328,7 +374,6 @@
         }
       });
       
-      // Define all rooms as provided
       const allRooms = [
         ["101", "102", "103", "104", "105"],
         ["201", "202", "203", "204", "205"],
@@ -343,8 +388,11 @@
         for (let i = 0; i < maxCols; i++) {
           const room = row[i] || "";
           const isUsed = room && usedRooms.has(room.toLowerCase());
+          // Use updated modern colors:
+          // If room is in use: a soft coral (#ff8a80)
+          // If available: a soft mint (#a5d6a7)
           const bgColor = room
-            ? (isUsed ? '#ff6666' : '#66cc66')
+            ? (isUsed ? '#ff8a80' : '#a5d6a7')
             : '#f5f5f5';
           html += `<td style="background:${bgColor};">${room}</td>`;
         }
@@ -354,7 +402,7 @@
       document.getElementById('room-grid').innerHTML = html;
     }
     
-    // Refresh all data
+    // Refresh All Data
     function refreshAll() {
       updateDate();
       updateTime();
@@ -364,11 +412,13 @@
     refreshAll();
     setInterval(refreshAll, 60000);
     
-    // Mode toggle logic (Day/Eve toggle)
-    let currentMode = "day"; // Default is Day mode
-    // Initially, Day mode active; preview area removed so no action there.
+    // Mode Toggle Logic
+    let currentMode = "day";
+    // Initially, Day mode active; preview of opposite (Eve) is shown
     document.getElementById('tab-day').classList.add('active');
     document.getElementById('tab-eve').classList.remove('active');
+    document.getElementById("preview-eve").style.display = "block";
+    document.getElementById("preview-day").style.display = "none";
     
     document.getElementById('mode-toggle').addEventListener('click', () => {
       if (currentMode === "day") {
@@ -376,16 +426,20 @@
         document.getElementById('mode-toggle').textContent = "🌜";
         document.getElementById('tab-day').classList.remove('active');
         document.getElementById('tab-eve').classList.add('active');
+        document.getElementById("preview-day").style.display = "block";
+        document.getElementById("preview-eve").style.display = "none";
       } else {
         currentMode = "day";
         document.getElementById('mode-toggle').textContent = "🌞";
         document.getElementById('tab-eve').classList.remove('active');
         document.getElementById('tab-day').classList.add('active');
+        document.getElementById("preview-eve").style.display = "block";
+        document.getElementById("preview-day").style.display = "none";
       }
       setTimeout(updateRoomGrid, 500);
     });
     
-    // Manual refresh button
+    // Manual Refresh Button
     document.getElementById('refresh-button').addEventListener('click', refreshAll);
   </script>
 </body>
