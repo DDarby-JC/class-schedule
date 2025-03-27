@@ -37,13 +37,13 @@
     #refresh-button {
       background: none;
       border: none;
-      font-size: 1.2em;
-      opacity: 0.7;
+      font-size: 1.5em;
+      opacity: 0.8;
       cursor: pointer;
       color: inherit;
     }
     #date-display {
-      font-size: 1.5em;
+      font-size: 1.8em;
       font-weight: bold;
       flex: 1;
       text-align: center;
@@ -55,12 +55,12 @@
       gap: 10px;
     }
     #time-display {
-      font-size: 1.2em;
+      font-size: 1.5em;
     }
     #mode-toggle {
       background: none;
       border: none;
-      font-size: 1.5em;
+      font-size: 1.8em;
       cursor: pointer;
     }
     /* ===== Tab Content: Only one active at a time ===== */
@@ -144,61 +144,10 @@
       width: calc(100% / 7);
       font-size: 0.8em;
     }
-    /* ===== Preview Area (2×1 grid) ===== */
-    #preview-area {
-      margin-bottom: 15px;
-    }
-    .preview-content {
-      background: #fff;
-      border: 1px solid #ddd;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      padding: 8px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      font-size: 0.9em;
-    }
-    .preview-header {
-      font-size: 1em;
-      font-weight: bold;
-      margin-bottom: 5px;
-      text-align: center;
-    }
-    .preview-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .preview-table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-      font-size: 0.9em;
-    }
-    .preview-table caption {
-      font-size: 0.9em;
-      padding: 4px;
-      font-weight: bold;
-    }
-    .preview-table th, .preview-table td {
-      padding: 6px 4px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-    .preview-table th:first-child,
-    .preview-table td:first-child {
-      width: 70%;
-    }
-    .preview-table th:last-child,
-    .preview-table td:last-child {
-      width: 30%;
-    }
     /* ===== Responsive Adjustments ===== */
     @media only screen and (max-width: 600px) {
-      #date-display { font-size: 1.3em; }
-      #time-display { font-size: 1em; }
+      #date-display { font-size: 1.5em; }
+      #time-display { font-size: 1.3em; }
       #mode-toggle { font-size: 1.3em; }
     }
   </style>
@@ -214,7 +163,7 @@
     </div>
   </header>
   
-  <!-- ===== Main Content: Schedules (Toggle between Day and Eve) ===== -->
+  <!-- ===== Main Content: Toggle Between Day and Eve Schedules ===== -->
   <!-- Day Mode -->
   <div id="tab-day" class="tab-content active">
     <div class="stacked-container">
@@ -283,7 +232,7 @@
   <!-- ===== PapaParse Library ===== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
-    // Update date display
+    // Update date display in header
     function updateDate() {
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -291,7 +240,7 @@
     }
     updateDate();
     
-    // Update time display every second
+    // Update time display in header (every second)
     function updateTime() {
       const now = new Date();
       document.getElementById('time-display').textContent = now.toLocaleTimeString();
@@ -299,7 +248,7 @@
     updateTime();
     setInterval(updateTime, 1000);
     
-    // CSV URLs for schedules
+    // CSV URLs for schedules – update with your published URLs
     const urls = {
       "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
       "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
@@ -357,90 +306,4 @@
     
     // Update Room Availability Grid
     function updateRoomGrid() {
-      let usedRooms = new Set();
-      ["rn-day", "pn-day", "rn-eve", "pn-eve"].forEach(id => {
-        const tbody = document.querySelector('#' + id + ' tbody');
-        if (tbody) {
-          const rows = tbody.querySelectorAll('tr');
-          rows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            if (cells.length > 1) {
-              const roomVal = cells[1].textContent.trim();
-              if (roomVal) {
-                usedRooms.add(roomVal.toLowerCase());
-              }
-            }
-          });
-        }
-      });
-      
-      const allRooms = [
-        ["101", "102", "103", "104", "105"],
-        ["201", "202", "203", "204", "205"],
-        ["Conference", "Computer Lab", "Lib - Main", "Lib - SR1", "Lib - SR2", "Lib - SR3"],
-        ["Skills Lab", "Trauma Bay", "Med Office", "Peds", "Ob Noel", "Simman", "ALF"]
-      ];
-      
-      const maxCols = 7;
-      let html = '<table>';
-      allRooms.forEach(row => {
-        html += '<tr>';
-        for (let i = 0; i < maxCols; i++) {
-          const room = row[i] || "";
-          const isUsed = room && usedRooms.has(room.toLowerCase());
-          // Use updated modern colors:
-          // If room is in use: a soft coral (#ff8a80)
-          // If available: a soft mint (#a5d6a7)
-          const bgColor = room
-            ? (isUsed ? '#ff8a80' : '#a5d6a7')
-            : '#f5f5f5';
-          html += `<td style="background:${bgColor};">${room}</td>`;
-        }
-        html += '</tr>';
-      });
-      html += '</table>';
-      document.getElementById('room-grid').innerHTML = html;
-    }
-    
-    // Refresh All Data
-    function refreshAll() {
-      updateDate();
-      updateTime();
-      loadMainSchedules();
-      setTimeout(updateRoomGrid, 1000);
-    }
-    refreshAll();
-    setInterval(refreshAll, 60000);
-    
-    // Mode Toggle Logic
-    let currentMode = "day";
-    // Initially, Day mode active; preview of opposite (Eve) is shown
-    document.getElementById('tab-day').classList.add('active');
-    document.getElementById('tab-eve').classList.remove('active');
-    document.getElementById("preview-eve").style.display = "block";
-    document.getElementById("preview-day").style.display = "none";
-    
-    document.getElementById('mode-toggle').addEventListener('click', () => {
-      if (currentMode === "day") {
-        currentMode = "eve";
-        document.getElementById('mode-toggle').textContent = "🌜";
-        document.getElementById('tab-day').classList.remove('active');
-        document.getElementById('tab-eve').classList.add('active');
-        document.getElementById("preview-day").style.display = "block";
-        document.getElementById("preview-eve").style.display = "none";
-      } else {
-        currentMode = "day";
-        document.getElementById('mode-toggle').textContent = "🌞";
-        document.getElementById('tab-eve').classList.remove('active');
-        document.getElementById('tab-day').classList.add('active');
-        document.getElementById("preview-eve").style.display = "block";
-        document.getElementById("preview-day").style.display = "none";
-      }
-      setTimeout(updateRoomGrid, 500);
-    });
-    
-    // Manual Refresh Button
-    document.getElementById('refresh-button').addEventListener('click', refreshAll);
-  </script>
-</body>
-</html>
+      let
