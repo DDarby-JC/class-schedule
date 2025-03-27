@@ -306,4 +306,81 @@
     
     // Update Room Availability Grid
     function updateRoomGrid() {
-      let
+      let usedRooms = new Set();
+      ["rn-day", "pn-day", "rn-eve", "pn-eve"].forEach(id => {
+        const tbody = document.querySelector('#' + id + ' tbody');
+        if (tbody) {
+          const rows = tbody.querySelectorAll('tr');
+          rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length > 1) {
+              const roomVal = cells[1].textContent.trim();
+              if (roomVal) {
+                usedRooms.add(roomVal.toLowerCase());
+              }
+            }
+          });
+        }
+      });
+      
+      const allRooms = [
+        ["101", "102", "103", "104", "105"],
+        ["201", "202", "203", "204", "205"],
+        ["Conference", "Computer Lab", "Lib - Main", "Lib - SR1", "Lib - SR2", "Lib - SR3"],
+        ["Skills Lab", "Trauma Bay", "Med Office", "Peds", "Ob Noel", "Simman", "ALF"]
+      ];
+      
+      const maxCols = 7;
+      let html = '<table>';
+      allRooms.forEach(row => {
+        html += '<tr>';
+        for (let i = 0; i < maxCols; i++) {
+          const room = row[i] || "";
+          const isUsed = room && usedRooms.has(room.toLowerCase());
+          // Use modern colors: soft coral for occupied, soft mint for available
+          const bgColor = room
+            ? (isUsed ? '#ff8a80' : '#a5d6a7')
+            : '#f5f5f5';
+          html += `<td style="background:${bgColor};">${room}</td>`;
+        }
+        html += '</tr>';
+      });
+      html += '</table>';
+      document.getElementById('room-grid').innerHTML = html;
+    }
+    
+    // Refresh All Data
+    function refreshAll() {
+      updateDate();
+      updateTime();
+      loadMainSchedules();
+      setTimeout(updateRoomGrid, 1000);
+    }
+    refreshAll();
+    setInterval(refreshAll, 60000);
+    
+    // Mode Toggle Logic
+    let currentMode = "day"; // Default is Day mode
+    document.getElementById('tab-day').classList.add('active');
+    document.getElementById('tab-eve').classList.remove('active');
+    
+    document.getElementById('mode-toggle').addEventListener('click', () => {
+      if (currentMode === "day") {
+        currentMode = "eve";
+        document.getElementById('mode-toggle').textContent = "🌜";
+        document.getElementById('tab-day').classList.remove('active');
+        document.getElementById('tab-eve').classList.add('active');
+      } else {
+        currentMode = "day";
+        document.getElementById('mode-toggle').textContent = "🌞";
+        document.getElementById('tab-eve').classList.remove('active');
+        document.getElementById('tab-day').classList.add('active');
+      }
+      setTimeout(updateRoomGrid, 500);
+    });
+    
+    // Manual Refresh Button
+    document.getElementById('refresh-button').addEventListener('click', refreshAll);
+  </script>
+</body>
+</html>
