@@ -144,6 +144,57 @@
       width: calc(100% / 7);
       font-size: 0.8em;
     }
+    /* ===== Preview Area (2×1 grid) ===== */
+    #preview-area {
+      margin-bottom: 15px;
+    }
+    .preview-content {
+      background: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      padding: 8px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 0.9em;
+    }
+    .preview-header {
+      font-size: 1em;
+      font-weight: bold;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .preview-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 0.9em;
+    }
+    .preview-table caption {
+      font-size: 0.9em;
+      padding: 4px;
+      font-weight: bold;
+    }
+    .preview-table th, .preview-table td {
+      padding: 6px 4px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .preview-table th:first-child,
+    .preview-table td:first-child {
+      width: 70%;
+    }
+    .preview-table th:last-child,
+    .preview-table td:last-child {
+      width: 30%;
+    }
     /* ===== Responsive Adjustments ===== */
     @media only screen and (max-width: 600px) {
       #date-display { font-size: 1.5em; }
@@ -163,7 +214,7 @@
     </div>
   </header>
   
-  <!-- ===== Main Content: Toggle Between Day and Eve Schedules ===== -->
+  <!-- ===== Main Content: Schedules (Toggle between Day and Eve) ===== -->
   <!-- Day Mode -->
   <div id="tab-day" class="tab-content active">
     <div class="stacked-container">
@@ -250,137 +301,4 @@
     
     // CSV URLs for schedules – update with your published URLs
     const urls = {
-      "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
-      "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
-      "pn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1551044945&single=true&output=csv",
-      "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv"
-    };
-    
-    // Helper: Update a table with CSV data
-    function updateTable(tableElement, data) {
-      const tbody = tableElement.querySelector('tbody');
-      tbody.innerHTML = "";
-      data.forEach(row => {
-        const tr = document.createElement('tr');
-        const tdClass = document.createElement('td');
-        tdClass.textContent = row.Class || row.class || "";
-        const tdRoom = document.createElement('td');
-        tdRoom.textContent = row.Room || row.room || "";
-        tr.appendChild(tdClass);
-        tr.appendChild(tdRoom);
-        tbody.appendChild(tr);
-      });
-    }
-    
-    // Load main schedules for all tables
-    function loadMainSchedules() {
-      Papa.parse(urls["rn-day"], {
-        download: true,
-        header: true,
-        complete: function(results) {
-          updateTable(document.getElementById("rn-day"), results.data);
-        }
-      });
-      Papa.parse(urls["pn-day"], {
-        download: true,
-        header: true,
-        complete: function(results) {
-          updateTable(document.getElementById("pn-day"), results.data);
-        }
-      });
-      Papa.parse(urls["rn-eve"], {
-        download: true,
-        header: true,
-        complete: function(results) {
-          updateTable(document.getElementById("rn-eve"), results.data);
-        }
-      });
-      Papa.parse(urls["pn-eve"], {
-        download: true,
-        header: true,
-        complete: function(results) {
-          updateTable(document.getElementById("pn-eve"), results.data);
-        }
-      });
-    }
-    
-    // Update Room Availability Grid
-    function updateRoomGrid() {
-      let usedRooms = new Set();
-      ["rn-day", "pn-day", "rn-eve", "pn-eve"].forEach(id => {
-        const tbody = document.querySelector('#' + id + ' tbody');
-        if (tbody) {
-          const rows = tbody.querySelectorAll('tr');
-          rows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            if (cells.length > 1) {
-              const roomVal = cells[1].textContent.trim();
-              if (roomVal) {
-                usedRooms.add(roomVal.toLowerCase());
-              }
-            }
-          });
-        }
-      });
-      
-      const allRooms = [
-        ["101", "102", "103", "104", "105"],
-        ["201", "202", "203", "204", "205"],
-        ["Conference", "Computer Lab", "Lib - Main", "Lib - SR1", "Lib - SR2", "Lib - SR3"],
-        ["Skills Lab", "Trauma Bay", "Med Office", "Peds", "Ob Noel", "Simman", "ALF"]
-      ];
-      
-      const maxCols = 7;
-      let html = '<table>';
-      allRooms.forEach(row => {
-        html += '<tr>';
-        for (let i = 0; i < maxCols; i++) {
-          const room = row[i] || "";
-          const isUsed = room && usedRooms.has(room.toLowerCase());
-          // Use modern colors: soft coral for occupied, soft mint for available
-          const bgColor = room
-            ? (isUsed ? '#ff8a80' : '#a5d6a7')
-            : '#f5f5f5';
-          html += `<td style="background:${bgColor};">${room}</td>`;
-        }
-        html += '</tr>';
-      });
-      html += '</table>';
-      document.getElementById('room-grid').innerHTML = html;
-    }
-    
-    // Refresh All Data
-    function refreshAll() {
-      updateDate();
-      updateTime();
-      loadMainSchedules();
-      setTimeout(updateRoomGrid, 1000);
-    }
-    refreshAll();
-    setInterval(refreshAll, 60000);
-    
-    // Mode Toggle Logic
-    let currentMode = "day"; // Default is Day mode
-    document.getElementById('tab-day').classList.add('active');
-    document.getElementById('tab-eve').classList.remove('active');
-    
-    document.getElementById('mode-toggle').addEventListener('click', () => {
-      if (currentMode === "day") {
-        currentMode = "eve";
-        document.getElementById('mode-toggle').textContent = "🌜";
-        document.getElementById('tab-day').classList.remove('active');
-        document.getElementById('tab-eve').classList.add('active');
-      } else {
-        currentMode = "day";
-        document.getElementById('mode-toggle').textContent = "🌞";
-        document.getElementById('tab-eve').classList.remove('active');
-        document.getElementById('tab-day').classList.add('active');
-      }
-      setTimeout(updateRoomGrid, 500);
-    });
-    
-    // Manual Refresh Button
-    document.getElementById('refresh-button').addEventListener('click', refreshAll);
-  </script>
-</body>
-</html>
+      "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtq
