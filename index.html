@@ -144,6 +144,57 @@
       width: calc(100% / 7);
       font-size: 0.8em;
     }
+    /* ===== Preview Area (2×1 grid) ===== */
+    #preview-area {
+      margin-bottom: 15px;
+    }
+    .preview-content {
+      background: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      padding: 8px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 0.9em;
+    }
+    .preview-header {
+      font-size: 1em;
+      font-weight: bold;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .preview-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 0.9em;
+    }
+    .preview-table caption {
+      font-size: 0.9em;
+      padding: 4px;
+      font-weight: bold;
+    }
+    .preview-table th, .preview-table td {
+      padding: 6px 4px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .preview-table th:first-child,
+    .preview-table td:first-child {
+      width: 70%;
+    }
+    .preview-table th:last-child,
+    .preview-table td:last-child {
+      width: 30%;
+    }
     /* ===== Responsive Adjustments ===== */
     @media only screen and (max-width: 600px) {
       #date-display { font-size: 1.5em; }
@@ -163,7 +214,7 @@
     </div>
   </header>
   
-  <!-- ===== Main Content: Toggle Between Day and Eve Schedules ===== -->
+  <!-- ===== Main Content: Schedules (Toggle between Day and Eve) ===== -->
   <!-- Day Mode -->
   <div id="tab-day" class="tab-content active">
     <div class="stacked-container">
@@ -304,10 +355,12 @@
       });
     }
     
-    // Update Room Availability Grid
+    // Update Room Availability Grid based on active mode
     function updateRoomGrid() {
       let usedRooms = new Set();
-      ["rn-day", "pn-day", "rn-eve", "pn-eve"].forEach(id => {
+      // Use only the day or eve schedules based on currentMode
+      const ids = (currentMode === "day") ? ["rn-day", "pn-day"] : ["rn-eve", "pn-eve"];
+      ids.forEach(id => {
         const tbody = document.querySelector('#' + id + ' tbody');
         if (tbody) {
           const rows = tbody.querySelectorAll('tr');
@@ -337,7 +390,7 @@
         for (let i = 0; i < maxCols; i++) {
           const room = row[i] || "";
           const isUsed = room && usedRooms.has(room.toLowerCase());
-          // Use modern colors: soft coral for occupied, soft mint for available
+          // Modern colors: soft coral for occupied, soft mint for available
           const bgColor = room
             ? (isUsed ? '#ff8a80' : '#a5d6a7')
             : '#f5f5f5';
