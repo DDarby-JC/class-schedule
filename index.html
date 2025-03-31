@@ -201,6 +201,11 @@
       #time-display { font-size: 1.3em; }
       #mode-toggle { font-size: 1.3em; }
     }
+    
+    /* Highlight row styling */
+    .highlighted {
+      background-color: #ffeb3b;
+    }
   </style>
 </head>
 <body>
@@ -313,10 +318,17 @@
       tbody.innerHTML = "";
       data.forEach(row => {
         const tr = document.createElement('tr');
+        
+        // If the 'Highlight' column contains an asterisk, add the highlight class
+        if (row.Highlight && row.Highlight.trim() === "*") {
+          tr.classList.add("highlighted");
+        }
+        
         const tdClass = document.createElement('td');
         tdClass.textContent = row.Class || row.class || "";
         const tdRoom = document.createElement('td');
         tdRoom.textContent = row.Room || row.room || "";
+        
         tr.appendChild(tdClass);
         tr.appendChild(tdRoom);
         tbody.appendChild(tr);
