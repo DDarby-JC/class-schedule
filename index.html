@@ -84,7 +84,6 @@
       border-radius: 8px;
       overflow: hidden;
       table-layout: fixed;
-      font-size: 1em;
     }
     caption {
       font-size: 1.2em;
@@ -103,6 +102,7 @@
       background: #FFD700;
       color: #333;
     }
+    /* Table cells styling */
     th, td {
       padding: 10px 8px;
       text-align: left;
@@ -110,6 +110,13 @@
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
+    }
+    /* Increase font size for main schedule table cells */
+    #tab-day table th, 
+    #tab-day table td, 
+    #tab-eve table th, 
+    #tab-eve table td {
+      font-size: 1.3em;
     }
     th {
       background: #f9f9f9;
@@ -144,67 +151,11 @@
       width: calc(100% / 7);
       font-size: 0.8em;
     }
-    /* ===== Preview Area (2×1 grid) ===== */
-    #preview-area {
-      margin-bottom: 15px;
-    }
-    .preview-content {
-      background: #fff;
-      border: 1px solid #ddd;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      padding: 8px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      font-size: 0.9em;
-    }
-    .preview-header {
-      font-size: 1em;
-      font-weight: bold;
-      margin-bottom: 5px;
-      text-align: center;
-    }
-    .preview-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .preview-table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-      font-size: 0.9em;
-    }
-    .preview-table caption {
-      font-size: 0.9em;
-      padding: 4px;
-      font-weight: bold;
-    }
-    .preview-table th, .preview-table td {
-      padding: 6px 4px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-    .preview-table th:first-child,
-    .preview-table td:first-child {
-      width: 70%;
-    }
-    .preview-table th:last-child,
-    .preview-table td:last-child {
-      width: 30%;
-    }
     /* ===== Responsive Adjustments ===== */
     @media only screen and (max-width: 600px) {
       #date-display { font-size: 1.5em; }
       #time-display { font-size: 1.3em; }
       #mode-toggle { font-size: 1.3em; }
-    }
-    
-    /* Highlight row styling */
-    .highlighted {
-      background-color: #ffeb3b;
     }
   </style>
 </head>
@@ -318,17 +269,10 @@
       tbody.innerHTML = "";
       data.forEach(row => {
         const tr = document.createElement('tr');
-        
-        // If the 'Highlight' column contains an asterisk, add the highlight class
-        if (row.Highlight && row.Highlight.trim() === "*") {
-          tr.classList.add("highlighted");
-        }
-        
         const tdClass = document.createElement('td');
         tdClass.textContent = row.Class || row.class || "";
         const tdRoom = document.createElement('td');
         tdRoom.textContent = row.Room || row.room || "";
-        
         tr.appendChild(tdClass);
         tr.appendChild(tdRoom);
         tbody.appendChild(tr);
@@ -337,28 +281,29 @@
     
     // Load main schedules for all tables
     function loadMainSchedules() {
-      Papa.parse(urls["rn-day"], {
+      // Append a timestamp to each URL to force a fresh download
+      Papa.parse(urls["rn-day"] + "&t=" + Date.now(), {
         download: true,
         header: true,
         complete: function(results) {
           updateTable(document.getElementById("rn-day"), results.data);
         }
       });
-      Papa.parse(urls["pn-day"], {
+      Papa.parse(urls["pn-day"] + "&t=" + Date.now(), {
         download: true,
         header: true,
         complete: function(results) {
           updateTable(document.getElementById("pn-day"), results.data);
         }
       });
-      Papa.parse(urls["rn-eve"], {
+      Papa.parse(urls["rn-eve"] + "&t=" + Date.now(), {
         download: true,
         header: true,
         complete: function(results) {
           updateTable(document.getElementById("rn-eve"), results.data);
         }
       });
-      Papa.parse(urls["pn-eve"], {
+      Papa.parse(urls["pn-eve"] + "&t=" + Date.now(), {
         download: true,
         header: true,
         complete: function(results) {
