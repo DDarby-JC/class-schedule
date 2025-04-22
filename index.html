@@ -23,6 +23,7 @@
     html::-webkit-scrollbar, body::-webkit-scrollbar {
       display: none;
     }
+
     /* ===== Header ===== */
     header {
       display: flex;
@@ -33,7 +34,15 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       border-radius: 8px;
       margin-bottom: 15px;
+      /* Header glow animation */
+      animation: headerGlow 20s infinite;
     }
+
+    @keyframes headerGlow {
+      0%, 100% { background: #ffffff; }
+      50%      { background: #e3f2fd; }
+    }
+
     #refresh-button {
       background: none;
       border: none;
@@ -48,6 +57,7 @@
       flex: 1;
       text-align: center;
     }
+
     /* Container for time and mode toggle */
     #time-container {
       display: flex;
@@ -63,6 +73,7 @@
       font-size: 1.8em;
       cursor: pointer;
     }
+
     /* ===== Tab Content: Only one active at a time ===== */
     .tab-content {
       display: none !important;
@@ -76,6 +87,7 @@
       gap: 15px;
       margin-bottom: 15px;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -102,6 +114,7 @@
       background: #FFD700;
       color: #333;
     }
+
     /* Table cells styling */
     th, td {
       padding: 10px 8px;
@@ -112,9 +125,9 @@
       text-overflow: ellipsis;
     }
     /* Increase font size for main schedule table cells */
-    #tab-day table th, 
-    #tab-day table td, 
-    #tab-eve table th, 
+    #tab-day table th,
+    #tab-day table td,
+    #tab-eve table th,
     #tab-eve table td {
       font-size: 1.3em;
     }
@@ -134,6 +147,7 @@
     table td:last-child {
       width: 30%;
     }
+
     /* ===== Room Availability Grid ===== */
     #room-grid {
       margin-bottom: 15px;
@@ -151,6 +165,7 @@
       width: calc(100% / 7);
       font-size: 0.8em;
     }
+
     /* ===== Responsive Adjustments ===== */
     @media only screen and (max-width: 600px) {
       #date-display { font-size: 1.5em; }
@@ -162,11 +177,11 @@
 <body>
   <!-- ===== Header: Refresh, Date, Time & Mode Toggle ===== -->
   <header>
-    <button id="refresh-button" title="Refresh">&#x21bb;</button>
+    <button id="refresh-button" type="button" title="Refresh">&#x21bb;</button>
     <div id="date-display"></div>
     <div id="time-container">
       <span id="time-display"></span>
-      <button id="mode-toggle" title="Toggle Mode">🌞</button>
+      <button id="mode-toggle" type="button" title="Toggle Mode">🌞</button>
     </div>
   </header>
   
@@ -239,30 +254,21 @@
   <!-- ===== PapaParse Library ===== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
+    let currentMode = "day";
+    
     // Update date display in header
     function updateDate() {
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
       document.getElementById('date-display').textContent = now.toLocaleDateString(undefined, options);
     }
-    updateDate();
-    
+
     // Update time display in header (every second)
     function updateTime() {
       const now = new Date();
       document.getElementById('time-display').textContent = now.toLocaleTimeString();
     }
-    updateTime();
-    setInterval(updateTime, 1000);
-    
-    // CSV URLs for schedules – update with your published URLs
-    const urls = {
-      "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
-      "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
-      "pn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1551044945&single=true&output=csv",
-      "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv"
-    };
-    
+
     // Helper: Update a table with CSV data
     function updateTable(tableElement, data) {
       const tbody = tableElement.querySelector('tbody');
@@ -278,87 +284,63 @@
         tbody.appendChild(tr);
       });
     }
-    
+
     // Load main schedules for all tables
     function loadMainSchedules() {
-      // Append a timestamp to each URL to force a fresh download
-      Papa.parse(urls["rn-day"] + "&t=" + Date.now(), {
-        download: true,
-        header: true,
-        complete: function(results) {
-          updateTable(document.getElementById("rn-day"), results.data);
-        }
-      });
-      Papa.parse(urls["pn-day"] + "&t=" + Date.now(), {
-        download: true,
-        header: true,
-        complete: function(results) {
-          updateTable(document.getElementById("pn-day"), results.data);
-        }
-      });
-      Papa.parse(urls["rn-eve"] + "&t=" + Date.now(), {
-        download: true,
-        header: true,
-        complete: function(results) {
-          updateTable(document.getElementById("rn-eve"), results.data);
-        }
-      });
-      Papa.parse(urls["pn-eve"] + "&t=" + Date.now(), {
-        download: true,
-        header: true,
-        complete: function(results) {
-          updateTable(document.getElementById("pn-eve"), results.data);
-        }
+      const urls = {
+        "rn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=0&single=true&output=csv",
+        "pn-day": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1551044945&single=true&output=csv",
+        "rn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=2050615219&single=true&output=csv",
+        "pn-eve": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYjtqPIy43_4nbBMKbQOPdbBZ7ZIiyEA5KbKFDTvll7BKO01of92xTPPe-A8fYzcJv8QkbUdda-twU/pub?gid=1029607582&single=true&output=csv"
+      };
+      Object.keys(urls).forEach(key => {
+        Papa.parse(urls[key] + "&t=" + Date.now(), {
+          download: true,
+          header: true,
+          complete: results => {
+            updateTable(document.getElementById(key), results.data);
+          }
+        });
       });
     }
-    
+
     // Update Room Availability Grid based on active mode
     function updateRoomGrid() {
-      let usedRooms = new Set();
-      // Use only the day or eve schedules based on currentMode
-      const ids = (currentMode === "day") ? ["rn-day", "pn-day"] : ["rn-eve", "pn-eve"];
+      const usedRooms = new Set();
+      const ids = currentMode === "day"
+        ? ["rn-day", "pn-day"]
+        : ["rn-eve", "pn-eve"];
       ids.forEach(id => {
-        const tbody = document.querySelector('#' + id + ' tbody');
-        if (tbody) {
-          const rows = tbody.querySelectorAll('tr');
-          rows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            if (cells.length > 1) {
-              const roomVal = cells[1].textContent.trim();
-              if (roomVal) {
-                usedRooms.add(roomVal.toLowerCase());
-              }
-            }
-          });
-        }
+        document.querySelectorAll(`#${id} tbody tr`).forEach(row => {
+          const room = row.children[1]?.textContent.trim().toLowerCase();
+          if (room) usedRooms.add(room);
+        });
       });
-      
+
       const allRooms = [
         ["101", "102", "103", "104", "105"],
         ["201", "202", "203", "204", "205"],
         ["Conference", "Computer Lab", "Lib - Main", "Lib - SR1", "Lib - SR2", "Lib - SR3"],
         ["Skills Lab", "Trauma Bay", "Med Office", "Peds", "Ob Noel", "Simman", "ALF"]
       ];
-      
       const maxCols = 7;
-      let html = '<table>';
+      let html = "<table>";
       allRooms.forEach(row => {
-        html += '<tr>';
+        html += "<tr>";
         for (let i = 0; i < maxCols; i++) {
           const room = row[i] || "";
           const isUsed = room && usedRooms.has(room.toLowerCase());
-          // Modern colors: soft coral for occupied, soft mint for available
-          const bgColor = room
-            ? (isUsed ? '#ff8a80' : '#a5d6a7')
-            : '#f5f5f5';
-          html += `<td style="background:${bgColor};">${room}</td>`;
+          const bg = room
+            ? (isUsed ? "#ff8a80" : "#a5d6a7")
+            : "#f5f5f5";
+          html += `<td style="background:${bg};">${room}</td>`;
         }
-        html += '</tr>';
+        html += "</tr>";
       });
-      html += '</table>';
-      document.getElementById('room-grid').innerHTML = html;
+      html += "</table>";
+      document.getElementById("room-grid").innerHTML = html;
     }
-    
+
     // Refresh All Data
     function refreshAll() {
       updateDate();
@@ -366,31 +348,36 @@
       loadMainSchedules();
       setTimeout(updateRoomGrid, 1000);
     }
-    refreshAll();
-    setInterval(refreshAll, 60000);
-    
-    // Mode Toggle Logic
-    let currentMode = "day"; // Default is Day mode
-    document.getElementById('tab-day').classList.add('active');
-    document.getElementById('tab-eve').classList.remove('active');
-    
-    document.getElementById('mode-toggle').addEventListener('click', () => {
-      if (currentMode === "day") {
-        currentMode = "eve";
-        document.getElementById('mode-toggle').textContent = "🌜";
-        document.getElementById('tab-day').classList.remove('active');
-        document.getElementById('tab-eve').classList.add('active');
-      } else {
-        currentMode = "day";
-        document.getElementById('mode-toggle').textContent = "🌞";
-        document.getElementById('tab-eve').classList.remove('active');
-        document.getElementById('tab-day').classList.add('active');
-      }
-      setTimeout(updateRoomGrid, 500);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Wire up refresh button
+      document.getElementById("refresh-button")
+        .addEventListener("click", refreshAll);
+
+      // Mode toggle
+      document.getElementById("mode-toggle")
+        .addEventListener("click", () => {
+          if (currentMode === "day") {
+            currentMode = "eve";
+            document.getElementById("tab-day").classList.remove("active");
+            document.getElementById("tab-eve").classList.add("active");
+            document.getElementById("mode-toggle").textContent = "🌜";
+          } else {
+            currentMode = "day";
+            document.getElementById("tab-eve").classList.remove("active");
+            document.getElementById("tab-day").classList.add("active");
+            document.getElementById("mode-toggle").textContent = "🌞";
+          }
+          setTimeout(updateRoomGrid, 500);
+        });
+
+      // Initial setup
+      updateDate();
+      updateTime();
+      setInterval(updateTime, 1000);
+      refreshAll();
+      setInterval(refreshAll, 60000);
     });
-    
-    // Manual Refresh Button
-    document.getElementById('refresh-button').addEventListener('click', refreshAll);
   </script>
 </body>
 </html>
